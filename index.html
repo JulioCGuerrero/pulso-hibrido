@@ -1,0 +1,1987 @@
+<title>Pulso Híbrido</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+/* Layout: consola — barra fija con el turno activo, pestañas de vista, y un área de trabajo cuya espina es la línea de tiempo de los tres carriles. */
+:root{
+  --bg:#F2F6F6; --surface:#FFFFFF; --surface-2:#E9F0F0; --surface-3:#DCE7E7;
+  --line:#D2DFDF; --line-2:#BFD0D0;
+  --ink:#0C1A1C; --ink-2:#425659; --ink-3:#73898C;
+  --brand:#0B6E6B; --brand-soft:#D8EDEC;
+  --lane-h:#00A39A;  /* personal */
+  --lane-r:#5B52C9;  /* robot */
+  --lane-s:#C2416B;  /* supervisor */
+  --ok:#2E8257; --warn:#A8700C; --crit:#B83A30;
+  --ok-soft:#DCEEE4; --warn-soft:#F7ECD3; --crit-soft:#F8E1DE;
+  --display:'Archivo','Segoe UI',system-ui,sans-serif;
+  --body:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'Cascadia Mono',monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0A1214; --surface:#111E21; --surface-2:#16272A; --surface-3:#1D3236;
+    --line:#23393D; --line-2:#2E484D;
+    --ink:#E7F1F1; --ink-2:#A1B7BA; --ink-3:#6E878B;
+    --brand:#3FBDB3; --brand-soft:#123231;
+    --lane-h:#179F98; --lane-r:#8B82EA; --lane-s:#D4638A;
+    --ok:#4FB382; --warn:#D59F33; --crit:#E0695C;
+    --ok-soft:#12291F; --warn-soft:#2A2114; --crit-soft:#2C1917;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0A1214; --surface:#111E21; --surface-2:#16272A; --surface-3:#1D3236;
+  --line:#23393D; --line-2:#2E484D;
+  --ink:#E7F1F1; --ink-2:#A1B7BA; --ink-3:#6E878B;
+  --brand:#3FBDB3; --brand-soft:#123231;
+  --lane-h:#179F98; --lane-r:#8B82EA; --lane-s:#D4638A;
+  --ok:#4FB382; --warn:#D59F33; --crit:#E0695C;
+  --ok-soft:#12291F; --warn-soft:#2A2114; --crit-soft:#2C1917;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:40;background:var(--surface)}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+p{margin:0}
+a{color:var(--brand)}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---- barra superior ---- */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;flex-wrap:wrap}
+.mark{display:flex;align-items:center;gap:9px;margin-right:auto}
+.mark svg{display:block}
+.mark b{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:-.02em}
+.mark span{display:block;font-size:11px;color:var(--ink-3);line-height:1.2}
+.demo{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--warn);background:var(--warn-soft);border:1px solid color-mix(in oklab,var(--warn) 35%,transparent);padding:3px 8px;border-radius:999px;white-space:nowrap}
+.turno{font-family:var(--mono);font-size:11.5px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:4px 11px;white-space:nowrap}
+.tbtn{font:inherit;font-size:12px;color:var(--ink-2);background:var(--surface-2);border:1px solid var(--line);border-radius:999px;padding:4px 11px;cursor:pointer}
+.tbtn:hover{border-color:var(--line-2);color:var(--ink)}
+
+/* ---- pestañas ---- */
+.nav{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:calc(env(safe-area-inset-top,0px) + 49px);z-index:29}
+.nav .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.nav .wrap::-webkit-scrollbar{display:none}
+.nav a{font-family:var(--display);font-weight:600;font-size:13px;color:var(--ink-3);text-decoration:none;padding:11px 13px;border-bottom:2px solid transparent;white-space:nowrap}
+.nav a:hover{color:var(--ink)}
+.nav a[aria-current="page"]{color:var(--brand);border-bottom-color:var(--brand)}
+
+/* ---- estructura de vista ---- */
+main{padding-block:22px 44px}
+.view{display:flex;flex-direction:column;gap:20px}
+.vhead{display:flex;flex-direction:column;gap:5px}
+.vhead h2{font-size:21px;font-weight:700}
+.vhead p{color:var(--ink-2);max-width:68ch}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.card>h3{font-size:13.5px;font-weight:600;letter-spacing:.01em}
+.card>h3+.sub{color:var(--ink-3);font-size:12px;margin-top:3px}
+.grid{display:grid;gap:14px}
+.sec{display:flex;flex-direction:column;gap:10px}
+.sec>h3{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---- tiles ---- */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.tile{background:var(--surface);padding:13px 15px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.tile .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.tile .v{font-family:var(--display);font-weight:700;font-size:25px;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.tile .n{font-size:11.5px;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.tile .src{font-family:var(--mono);font-size:10px;color:var(--ink-3);margin-top:2px}
+
+/* ---- chips / estados ---- */
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--ink-2);background:var(--surface-2);white-space:nowrap}
+.chip.ok{color:var(--ok);background:var(--ok-soft);border-color:color-mix(in oklab,var(--ok) 32%,transparent)}
+.chip.warn{color:var(--warn);background:var(--warn-soft);border-color:color-mix(in oklab,var(--warn) 32%,transparent)}
+.chip.crit{color:var(--crit);background:var(--crit-soft);border-color:color-mix(in oklab,var(--crit) 32%,transparent)}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.src-chip{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);border:1px dashed var(--line-2);border-radius:5px;padding:2px 7px;white-space:nowrap}
+.swatch{width:10px;height:10px;border-radius:3px;flex:none;display:inline-block}
+
+/* ---- tablas ---- */
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:620px;font-size:12.5px}
+caption{text-align:left;font-size:12px;color:var(--ink-3);padding-bottom:8px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600;white-space:nowrap}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:11.5px}
+tbody tr:hover{background:var(--surface-2)}
+tr.alerta td{background:var(--crit-soft)}
+tr.alerta:hover td{background:var(--crit-soft)}
+.code{font-family:var(--mono);font-size:11.5px;color:var(--ink-2)}
+
+/* ---- barras ---- */
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(90px,2fr) 54px;gap:10px;align-items:center}
+.bar-row .lab{font-size:12.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{height:12px;background:var(--surface-2);border-radius:4px;position:relative;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;background:var(--brand)}
+.bar-row .val{font-family:var(--mono);font-size:11.5px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.stack{height:16px;display:flex;gap:2px;border-radius:4px;overflow:hidden;background:var(--surface-2)}
+.stack i{display:block;height:100%}
+
+/* ---- línea de tiempo ---- */
+.tl-wrap{overflow-x:auto}
+.tl{min-width:780px;width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:12px;align-items:center;font-size:12px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+
+/* ---- hallazgos ---- */
+.find{display:grid;grid-template-columns:28px 1fr;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.find:last-child{border-bottom:0;padding-bottom:0}
+.find:first-child{padding-top:0}
+.find .num{font-family:var(--mono);font-size:12px;color:var(--ink-3);padding-top:2px}
+.find h4{font-family:var(--display);font-size:13.5px;font-weight:600;margin:0 0 4px}
+.find p{font-size:12.5px;color:var(--ink-2)}
+.find .why{font-size:12px;color:var(--ink-3);margin-top:5px}
+
+/* ---- mapa de integración ---- */
+.io{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.io-head,.io-row{display:grid;grid-template-columns:1fr 1fr 150px;gap:1px;background:var(--line)}
+.io-head>div,.io-row>div{background:var(--surface);padding:11px 13px;min-width:0}
+.io-head>div{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.io-row>div{font-size:12.5px}
+.io-row .sbx{color:var(--ink-2)}
+.io-row .key{font-family:var(--mono);font-size:11px;color:var(--brand)}
+@media (max-width:720px){
+  .io-head{display:none}
+  .io-row{grid-template-columns:1fr}
+  .io-row>div::before{content:attr(data-l);display:block;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+}
+.caps{display:grid;grid-template-columns:repeat(auto-fit,minmax(248px,1fr));gap:12px}
+.cap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:6px}
+.cap .t{font-family:var(--display);font-weight:600;font-size:13.5px}
+.cap p{font-size:12.5px;color:var(--ink-2)}
+.cap .where{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);margin-top:auto;padding-top:6px}
+.note{border-left:3px solid var(--brand);background:var(--surface);padding:12px 14px;border-radius:0 var(--r) var(--r) 0;font-size:12.5px;color:var(--ink-2)}
+.note b{color:var(--ink)}
+footer{border-top:1px solid var(--line);margin-top:34px;padding-block:18px 8px;font-size:11.5px;color:var(--ink-3)}
+footer p+p{margin-top:5px}
+
+/* ---- mapa vivo ---- */
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:9px;padding:10px 12px;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r)}
+.play{font:inherit;font-family:var(--display);font-weight:600;font-size:12.5px;color:var(--surface);background:var(--brand);border:0;border-radius:7px;padding:7px 14px;cursor:pointer;min-width:92px}
+.play:hover{filter:brightness(1.08)}
+.spd{display:flex;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.spd button{font:inherit;font-family:var(--mono);font-size:11px;color:var(--ink-2);background:var(--surface);border:0;padding:6px 9px;cursor:pointer}
+.spd button[aria-pressed="true"]{background:var(--brand);color:var(--surface)}
+.clock{font-family:var(--mono);font-size:19px;font-weight:500;letter-spacing:.02em;font-variant-numeric:tabular-nums;min-width:66px}
+.clock small{display:block;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-family:var(--body)}
+#scrub{flex:1 1 180px;min-width:140px;accent-color:var(--brand)}
+.layers{display:flex;flex-wrap:wrap;gap:5px}
+.lay{font:inherit;font-size:11.5px;color:var(--ink-3);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:3px 10px;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.lay[aria-pressed="true"]{color:var(--ink);border-color:var(--line-2)}
+.lay i{width:8px;height:8px;border-radius:2px;background:var(--line-2);flex:none}
+.lay[aria-pressed="true"] i{background:var(--c,var(--brand))}
+
+.mapgrid{display:grid;grid-template-columns:minmax(0,1fr) 304px;gap:14px;align-items:start}
+@media (max-width:860px){.mapgrid{grid-template-columns:1fr}}
+.mapbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px;overflow-x:auto}
+.plan{min-width:660px;width:100%;height:auto;display:block}
+.side{display:flex;flex-direction:column;gap:12px;min-width:0}
+.livetiles{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.lt{background:var(--surface);padding:9px 11px;min-width:0}
+.lt .k{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
+.lt .v{font-family:var(--display);font-weight:700;font-size:18px;font-variant-numeric:tabular-nums;line-height:1.2}
+.rbot{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px 12px;display:flex;flex-direction:column;gap:7px}
+.rbot .hd{display:flex;align-items:baseline;gap:7px}
+.rbot .hd b{font-family:var(--mono);font-size:12px;font-weight:500}
+.rbot .hd span{font-size:11px;color:var(--ink-3);margin-left:auto;white-space:nowrap}
+.rbot .st{font-size:12px;color:var(--ink-2)}
+.rbot .st b{color:var(--ink);font-weight:600}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.kv div{min-width:0}
+.kv .k{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.kv .v{font-family:var(--mono);font-size:12.5px;font-variant-numeric:tabular-nums}
+.bat{height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden}
+.bat i{display:block;height:100%;border-radius:3px;background:var(--ok)}
+.plist{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.plist h4{font-family:var(--display);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin:0;padding:10px 12px 7px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
+.plist h4 span{font-family:var(--mono);letter-spacing:0;text-transform:none;color:var(--ink-2)}
+.prow{display:grid;grid-template-columns:10px minmax(0,1fr) auto;gap:9px;align-items:center;padding:7px 12px;border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:0}
+.prow .pd{width:9px;height:9px;border-radius:50%;background:var(--lane-h);flex:none}
+.prow .nm{min-width:0}
+.prow .nm b{display:block;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .nm em{font-style:normal;display:block;font-family:var(--mono);font-size:10px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow .mn{font-family:var(--mono);font-size:11px;color:var(--ink-2);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.prow.pend{opacity:.55}
+.prow.pend .pd{background:var(--ink-3)}
+.prow.off .pd{background:var(--crit)}
+.prow.off .nm b{color:var(--crit)}
+.prow.sup .pd{background:var(--lane-s)}
+.log{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:0;max-height:260px;overflow-y:auto}
+.log h4{font-family:var(--display);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin:0;padding:10px 12px 7px;position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line)}
+.ev{display:grid;grid-template-columns:40px 3px 1fr;gap:8px;padding:7px 12px;border-bottom:1px solid var(--line);font-size:11.5px;align-items:start}
+.ev:last-child{border-bottom:0}
+.ev time{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.ev i{align-self:stretch;border-radius:2px;background:var(--ink-3)}
+.ev.h i{background:var(--lane-h)}.ev.r i{background:var(--lane-r)}.ev.s i{background:var(--lane-s)}
+.ev.warn i{background:var(--warn)}.ev.crit i{background:var(--crit)}
+.ev p{color:var(--ink-2)}
+.ev.crit p,.ev.warn p{color:var(--ink)}
+
+/* ---- torre multi-sitio ---- */
+.torre{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:12px}
+.sc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px;display:flex;flex-direction:column;gap:9px;min-width:0}
+.sc.foco{border-color:var(--brand);box-shadow:inset 0 0 0 1px var(--brand)}
+.sc .hd{display:flex;align-items:flex-start;gap:8px}
+.sc .hd div{min-width:0}
+.sc .hd b{font-family:var(--display);font-size:13.5px;font-weight:600;display:block;line-height:1.25}
+.sc .hd em{font-style:normal;font-size:10.5px;color:var(--ink-3);font-family:var(--mono)}
+.sc .hd .chip{margin-left:auto;flex:none}
+.cobrow{display:flex;align-items:baseline;gap:7px}
+.cobrow .big{font-family:var(--display);font-weight:700;font-size:23px;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+.cobrow .mt{font-size:10.5px;color:var(--ink-3);font-family:var(--mono)}
+.sc .bar-track{height:9px}
+.pills{display:flex;gap:2px}
+.pills i{flex:1;height:14px;border-radius:2px;background:var(--surface-3);position:relative;overflow:hidden;min-width:0}
+.pills i b{position:absolute;inset:0 auto 0 0;display:block;background:var(--brand);border-radius:2px}
+.scrow{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding-top:2px;border-top:1px solid var(--line)}
+.scrow div{min-width:0}
+.scrow .k{font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
+.scrow .v{font-family:var(--mono);font-size:12px;font-variant-numeric:tabular-nums}
+.rank{display:flex;flex-direction:column;gap:5px}
+
+/* ---- control de corridas ---- */
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(152px,1fr));gap:11px;align-items:end}
+.fld{display:flex;flex-direction:column;gap:4px;min-width:0}
+.fld label{font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.fld select,.fld input{font:inherit;font-size:12.5px;font-family:var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--line-2);border-radius:7px;padding:7px 9px;min-width:0;width:100%}
+.fld select:focus,.fld input:focus{border-color:var(--brand)}
+.btn{font:inherit;font-family:var(--display);font-weight:600;font-size:12.5px;color:var(--surface);background:var(--brand);border:0;border-radius:7px;padding:9px 16px;cursor:pointer;white-space:nowrap}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--ink-2);border:1px solid var(--line-2)}
+.btn.ghost:hover{color:var(--ink);filter:none}
+.btn.mini{padding:4px 9px;font-size:11px;border-radius:6px}
+.btn.danger{background:transparent;color:var(--crit);border:1px solid color-mix(in oklab,var(--crit) 40%,transparent)}
+.msg{font-size:12.5px;padding:9px 12px;border-radius:7px;display:none}
+.msg.show{display:block}
+.msg.err{color:var(--crit);background:var(--crit-soft);border:1px solid color-mix(in oklab,var(--crit) 32%,transparent)}
+.msg.warn{color:var(--warn);background:var(--warn-soft);border:1px solid color-mix(in oklab,var(--warn) 32%,transparent)}
+.msg.ok{color:var(--ok);background:var(--ok-soft);border:1px solid color-mix(in oklab,var(--ok) 32%,transparent)}
+.acts{display:flex;gap:5px;flex-wrap:wrap}
+.pol{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.pol:last-child{border-bottom:0}
+.pol input{margin-top:2px;width:16px;height:16px;accent-color:var(--brand);flex:none}
+.pol label{font-size:12.5px;cursor:pointer}
+.pol label b{display:block;font-weight:600;font-size:12.5px}
+.pol label span{color:var(--ink-3);font-size:11.5px}
+.cal{overflow-x:auto}
+.cal table{min-width:520px}
+.cal td.c{text-align:center;font-family:var(--mono);font-size:11.5px;padding:0}
+.cel{display:block;margin:3px auto;width:34px;height:24px;line-height:24px;border-radius:5px;background:var(--surface-2);color:var(--ink-3)}
+.cel.on{color:var(--surface);font-weight:500}
+
+/* ---- rutinas ---- */
+.gantt{display:flex;flex-direction:column;gap:3px}
+.g-head,.g-row{display:grid;grid-template-columns:minmax(132px,1.5fr) minmax(170px,3fr) 70px;gap:10px;align-items:center}
+.g-head>div{font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+.g-row{padding:4px 0;border-bottom:1px solid var(--line)}
+.g-row:last-child{border-bottom:0}
+.g-row .nm{font-size:12px;min-width:0}
+.g-row .nm b{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);font-weight:400;display:block}
+.g-track{position:relative;height:17px;background:var(--surface-2);border-radius:4px;min-width:0}
+.g-track .tick{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.g-track .plan{position:absolute;top:2px;bottom:2px;border:1.5px dashed var(--line-2);border-radius:3px}
+.g-track .real{position:absolute;top:4px;bottom:4px;border-radius:3px}
+.g-row .pc{font-family:var(--mono);font-size:11px;text-align:right;font-variant-numeric:tabular-nums}
+.pasos{counter-reset:p;display:flex;flex-direction:column;gap:0}
+.paso{display:grid;grid-template-columns:22px 1fr;gap:9px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px;align-items:baseline}
+.paso:last-child{border-bottom:0}
+.paso .i{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+.paso em{font-style:normal;color:var(--ink-3);font-size:11.5px;display:block;margin-top:2px}
+
+/* ---- tooltip ---- */
+#tip{position:fixed;z-index:60;pointer-events:none;opacity:0;transition:opacity .09s;background:var(--surface);border:1px solid var(--line-2);border-radius:7px;padding:7px 9px;font-size:11.5px;color:var(--ink);box-shadow:0 6px 20px rgba(0,0,0,.14);max-width:260px}
+#tip b{font-family:var(--display);display:block;font-size:12px;margin-bottom:2px}
+#tip .m{font-family:var(--mono);font-size:10.5px;color:var(--ink-3)}
+</style>
+
+<div class="top"><div class="wrap">
+  <div class="mark">
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="9" cy="12" r="6.2" fill="none" stroke="var(--lane-h)" stroke-width="2"></circle>
+      <rect x="9.8" y="5.8" width="12.4" height="12.4" rx="3" fill="none" stroke="var(--lane-r)" stroke-width="2"></rect>
+    </svg>
+    <div><b>Pulso Híbrido</b><span>Grupo Batia · operación personal + robots</span></div>
+  </div>
+  <span class="demo">Datos demo</span>
+  <span class="turno" id="turno-chip">mar 24 nov 2026 · turno 06:00–14:00</span>
+  <button class="tbtn" id="theme" type="button">Tema</button>
+</div></div>
+
+<nav class="nav"><div class="wrap" id="nav"></div></nav>
+
+<main><div class="wrap">
+  <section class="view" id="v-panorama"></section>
+  <section class="view" id="v-torre" hidden></section>
+  <section class="view" id="v-mapa" hidden></section>
+  <section class="view" id="v-sitio" hidden></section>
+  <section class="view" id="v-rutinas" hidden></section>
+  <section class="view" id="v-control" hidden></section>
+  <section class="view" id="v-flota" hidden></section>
+  <section class="view" id="v-supervision" hidden></section>
+
+  <footer>
+    <p><b>Prototipo con datos de demostración.</b> Las cifras, nombres de personal y sitios de esta página son ejemplos construidos para mostrar la forma de la plataforma. No son registros de clientes ni de personal de Grupo Batia.</p>
+    <p><b>Desarrollo interno de Grupo Batia.</b> Los carriles de personal, rutinas y supervisión se arman con lo que ya existe en SINGA, el biométrico, AsistIA, CRM Supervisiones y Panel Pulso. El módulo de robótica es parte de la misma plataforma: registra cada corrida con el mismo modelo de datos que una rutina de personal.</p>
+  </footer>
+</div></main>
+
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>
+/* ============================ datos demo ============================ */
+const F = n => n.toLocaleString('es-MX');
+const hm = m => String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+
+const grupo = {
+  tiles:[
+    {k:'Sitios activos', v:'8', n:'5 con robot · 3 candidatos', src:'SINGA · catálogo de inmuebles'},
+    {k:'Cobertura del plan', v:'94.1%', n:'meta 96% · −1.9 pts vs semana pasada', src:'Panel Pulso'},
+    {k:'Asistencia del turno', v:'92.9%', n:'13 de 14 asignados · 1 cobertura', src:'Biométrico + SINGA'},
+    {k:'m² robotizados hoy', v:'15,940', n:'6.2% de la superficie atendida', src:'Módulo de robótica'},
+    {k:'Supervisiones hoy', v:'11', n:'1 crítica · 9 con evidencia de IA', src:'CRM Supervisiones'},
+    {k:'Alertas abiertas', v:'3', n:'1 con SLA vencido', src:'Matriz de escalamiento'}
+  ],
+  sitios:[
+    {s:'Auditorio Nacional', l:'Limpieza', g:'CDMX', m2:42000, rb:3, cob:96.6, asis:92.9, cal:7.4, est:'atencion', foco:true},
+    {s:'Torre Corporativa Reforma', l:'Limpieza', g:'CDMX', m2:28500, rb:1, cob:98.1, asis:100, cal:9.1, est:'ok'},
+    {s:'Centro Comercial Sur', l:'Limpieza', g:'CDMX', m2:61000, rb:2, cob:93.4, asis:95.2, cal:8.2, est:'ok'},
+    {s:'Terminal Aérea T2', l:'Limpieza', g:'CDMX', m2:54200, rb:1, cob:90.7, asis:88.0, cal:6.9, est:'critico'},
+    {s:'Corporativo Santa Fe', l:'Limpieza', g:'CDMX', m2:19800, rb:1, cob:97.6, asis:100, cal:8.8, est:'ok'},
+    {s:'Hospital Metropolitano', l:'Limpieza', g:'Edo. Méx.', m2:23400, rb:0, cob:95.0, asis:96.4, cal:8.5, est:'ok'},
+    {s:'Planta Industrial Querétaro', l:'Mantenimiento', g:'Querétaro', m2:31000, rb:0, cob:92.2, asis:97.1, cal:8.0, est:'ok'},
+    {s:'CEDIS Tultitlán', l:'Limpieza', g:'Edo. Méx.', m2:38700, rb:0, cob:89.5, asis:91.3, cal:7.1, est:'atencion'}
+  ],
+  lineas:[
+    {l:'Limpieza', h:198600, r:15940},
+    {l:'Mantenimiento', h:31000, r:0},
+    {l:'Seguridad (rondines)', h:12400, r:0}
+  ]
+};
+
+const sitio = {
+  nombre:'Auditorio Nacional',
+  contexto:'Evento la noche anterior · aforo 9,740 · cierre de sala 23:48. Turno de recuperación 06:00–14:00.',
+  t0:360, t1:840,
+  filas:[
+    {lane:'h', g:'Personal de limpieza', nom:'M. Ortega', meta:'Vestíbulo', mov:'A',
+     blocks:[{a:352,b:843,tip:'Entrada 05:52 · salida 14:03 · movimiento A',lab:'Vestíbulo'}]},
+    {lane:'h', nom:'J. Rangel', meta:'Luneta', mov:'A',
+     blocks:[{a:358,b:840,tip:'Entrada 05:58 · salida 14:00 · movimiento A',lab:'Luneta'}]},
+    {lane:'h', nom:'L. Cruz', meta:'Sanitarios Norte', mov:'A · retardo',
+     blocks:[{a:381,b:842,tip:'Entrada 06:21 · retardo de 21 min · movimiento A',lab:'Sanitarios Norte'}]},
+    {lane:'h', nom:'A. Mendoza', meta:'Sanitarios Sur', mov:'F',
+     falta:'Falta (F) — plaza sin cubrir hasta las 06:40'},
+    {lane:'h', nom:'R. Salinas', meta:'Cobertura Sanit. Sur', mov:'A · cobertura',
+     blocks:[{a:400,b:845,tip:'Entrada 06:40 · cobertura de la plaza de A. Mendoza',lab:'Cobertura'}]},
+    {lane:'h', nom:'P. Herrera', meta:'Pasillos perimetrales', mov:'A',
+     blocks:[{a:355,b:838,tip:'Entrada 05:55 · salida 13:58 · movimiento A',lab:'Pasillos'}]},
+    {lane:'h', nom:'D. Nava', meta:'Explanada', mov:'A',
+     blocks:[{a:365,b:841,tip:'Entrada 06:05 · salida 14:01 · movimiento A',lab:'Explanada'}]},
+
+    {lane:'r', g:'Robots de limpieza', nom:'WHZ-0412', meta:'Whiz i · Luneta, 1er piso',
+     blocks:[
+       {a:390,b:485,tip:'Corrida 1 · Luneta · 1,640 m² · 96% del plan',lab:'Luneta 1,640 m²'},
+       {a:550,b:640,tip:'Corrida 2 · Primer piso · 200 m² · interrumpida al 38% por obstáculo',lab:'1er piso 200 m²',kind:'warn'}
+     ],
+     marks:[{t:592,tip:'09:52 · error: obstáculo persistente (tarima de evento) — la corrida se detuvo al 38%',kind:'warn'}]},
+    {lane:'r', nom:'WHZ-0533', meta:'Whiz i · Vestíbulo, Balcón',
+     blocks:[
+       {a:375,b:470,tip:'Corrida 1 · Vestíbulo · 1,180 m² · 100% del plan',lab:'Vestíbulo 1,180 m²'},
+       {a:500,b:595,tip:'Corrida 2 · Balcón · 620 m² · 100% del plan',lab:'Balcón 620 m²'},
+       {a:630,b:695,tip:'Corrida 3 · Vestíbulo (repaso) · 100% del plan',lab:'Repaso'}
+     ]},
+    {lane:'r', nom:'SCR-118', meta:'Fregadora autónoma · fuera de servicio',
+     falta:'Fuera de servicio desde el 18 nov — refacción en espera'},
+
+    {lane:'s', g:'Supervisión', nom:'S. Félix', meta:'Supervisor de turno',
+     blocks:[
+       {a:390,b:430,tip:'Recorrido de apertura · 06:30–07:10',lab:'Recorrido'},
+       {a:720,b:755,tip:'Recorrido de cierre · 12:00–12:35',lab:'Recorrido'}
+     ],
+     marks:[{t:555,tip:'09:15 · supervisión formal · calificación 7.4 · GPS confirmado · 6 fotos',kind:'sup'}]},
+
+    {lane:'x', g:'Huecos de cobertura', nom:'Sin atender', meta:'ni persona, ni robot',
+     blocks:[
+       {a:360,b:400,tip:'Sanitarios Ala Sur · 40 min sin persona asignada y zona donde el robot no entra',lab:'Sanit. Sur 06:00–06:40',kind:'crit'},
+       {a:360,b:840,tip:'Estacionamiento P1 · 7,400 m² sin personal, sin robot y sin supervisión en todo el turno',lab:'Estacionamiento P1 · todo el turno',kind:'crit'}
+     ]}
+  ],
+  zonas:[
+    {z:'Vestíbulo principal', m2:3200, min:489, rm2:1180, sup:'sí', cal:8.5},
+    {z:'Luneta', m2:5400, min:482, rm2:1640, sup:'sí', cal:7.8},
+    {z:'Primer piso', m2:4100, min:0, rm2:200, sup:'no', cal:null},
+    {z:'Balcón', m2:2800, min:0, rm2:620, sup:'no', cal:null},
+    {z:'Sanitarios Ala Norte', m2:420, min:461, rm2:0, sup:'sí', cal:8.0},
+    {z:'Sanitarios Ala Sur', m2:420, min:445, rm2:0, sup:'sí', cal:4.2, alerta:true},
+    {z:'Pasillos perimetrales', m2:6900, min:483, rm2:0, sup:'sí', cal:8.1},
+    {z:'Explanada', m2:9500, min:476, rm2:0, sup:'no', cal:null},
+    {z:'Estacionamiento P1', m2:7400, min:0, rm2:0, sup:'no', cal:null, alerta:true}
+  ],
+  hallazgos:[
+    {t:'La zona peor calificada es la que estuvo 40 minutos sin nadie',
+     p:'A. Mendoza registró falta (F) en Sanitarios Ala Sur. La cobertura de R. Salinas entró 06:40. Es una zona donde el robot no opera. La supervisión de las 09:15 calificó esa zona 4.2 por falta de reposición de consumibles.',
+     w:'Antes, la falta vivía en SINGA, la calificación en CRM Supervisiones y la corrida del robot en otra parte. Aquí la cadena completa se lee de un jalón.'},
+    {t:'El robot cumplió su plan en dos zonas que nadie revisó',
+     p:'WHZ-0533 cerró Balcón al 100% y WHZ-0412 entró a Primer piso. Ninguna de las dos zonas recibió supervisión en el turno, así que el resultado no tiene verificación independiente.',
+     w:'Medido solo por telemetría, el robot cumplió y las dos zonas salen en verde. La calificación del supervisor es el único dato que dice si el resultado sirvió.'},
+    {t:'7,400 m² no estaban en el plan del día',
+     p:'Estacionamiento P1 cerró el turno sin personal asignado, sin corrida de robot y sin supervisión, porque la rutina RUT-11 no entró al programa. No aparece como incumplimiento: aparece como ausencia de plan.',
+     w:'Es el hueco más caro y el más fácil de perder de vista, porque ningún sistema reporta lo que nunca se programó.'}
+  ],
+  evidencia:[
+    {z:'Sanitarios Ala Sur', h:'Sin reposición de consumibles', ia:'0 de 4 dispensadores con carga detectada', mod:'Visión · consumibles', c:0.88, est:'crit'},
+    {z:'Área de alimentos', h:'2 personas sin cofia', ia:'2 detecciones sin cubrecabeza', mod:'Visión · uniforme', c:0.91, est:'warn'},
+    {z:'Luneta', h:'Conforme', ia:'0 residuos detectados en 18 fotos', mod:'Visión · residuos', c:0.94, est:'ok'},
+    {z:'Vestíbulo principal', h:'Conforme', ia:'0 residuos detectados en 11 fotos', mod:'Visión · residuos', c:0.93, est:'ok'}
+  ]
+};
+
+const flota = {
+  robots:[
+    {id:'WHZ-0412', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Auditorio Nacional', est:'operando', plan:92, m2:1840, bat:24, err:1},
+    {id:'WHZ-0533', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Auditorio Nacional', est:'operando', plan:100, m2:1800, bat:48, err:0},
+    {id:'WHZ-0210', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Torre Corporativa Reforma', est:'operando', plan:100, m2:2260, bat:48, err:0},
+    {id:'WHZ-0344', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Centro Comercial Sur', est:'operando', plan:97, m2:3120, bat:33, err:0},
+    {id:'WHZ-0345', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Centro Comercial Sur', est:'operando', plan:88, m2:2740, bat:19, err:2},
+    {id:'SCR-118', mod:'Fregadora autónoma', marca:'Otro proveedor', sitio:'Auditorio Nacional', est:'fuera', plan:0, m2:0, bat:0, err:0},
+    {id:'SCR-204', mod:'Fregadora autónoma', marca:'Otro proveedor', sitio:'Terminal Aérea T2', est:'operando', plan:95, m2:4180, bat:52, err:1},
+    {id:'WHZ-0501', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Corporativo Santa Fe', est:'mantenimiento', plan:0, m2:0, bat:100, err:0}
+  ],
+  campos:[
+    {c:'robot_id', d:'Identificador del equipo en el inventario del grupo', req:'obligatorio'},
+    {c:'inmueble_id', d:'Sitio donde corrió — la misma clave que usa SINGA', req:'obligatorio'},
+    {c:'zona', d:'Zona del plano ejecutada dentro del sitio', req:'obligatorio'},
+    {c:'rutina_id', d:'Rutina del catálogo que esta corrida ejecuta', req:'obligatorio'},
+    {c:'inicio / fin', d:'Marca de tiempo del arranque y del cierre', req:'obligatorio'},
+    {c:'m2_cubiertos', d:'Superficie efectivamente cubierta en la corrida', req:'obligatorio'},
+    {c:'avance_plan_pct', d:'Porcentaje del plan de la zona ejecutado', req:'obligatorio'},
+    {c:'bateria_fin_pct', d:'Batería al cierre de la corrida', req:'deseable'},
+    {c:'errores[]', d:'Código, hora y descripción de cada interrupción', req:'deseable'},
+    {c:'operador_id', d:'Quién lanzó la corrida — el mismo empleado de SINGA', req:'deseable'}
+  ]
+};
+
+const supervisiones = [
+  {h:'06:48', sitio:'Torre Corporativa Reforma', sup:'C. Barragán', cal:9.1, gps:'sí', fotos:8, ia:'conforme', est:'ok'},
+  {h:'07:20', sitio:'Corporativo Santa Fe', sup:'M. Lira', cal:8.8, gps:'sí', fotos:6, ia:'conforme', est:'ok'},
+  {h:'08:05', sitio:'Hospital Metropolitano', sup:'E. Quintero', cal:8.5, gps:'sí', fotos:12, ia:'conforme', est:'ok'},
+  {h:'08:40', sitio:'Centro Comercial Sur', sup:'V. Alcántara', cal:8.2, gps:'sí', fotos:9, ia:'1 hallazgo', est:'ok'},
+  {h:'09:15', sitio:'Auditorio Nacional', sup:'S. Félix', cal:7.4, gps:'sí', fotos:6, ia:'2 hallazgos', est:'warn', foco:true},
+  {h:'09:50', sitio:'Planta Industrial Querétaro', sup:'R. Ibarra', cal:8.0, gps:'sí', fotos:7, ia:'conforme', est:'ok'},
+  {h:'10:30', sitio:'CEDIS Tultitlán', sup:'G. Peralta', cal:7.1, gps:'sí', fotos:5, ia:'1 hallazgo', est:'warn'},
+  {h:'11:05', sitio:'Terminal Aérea T2', sup:'A. Durán', cal:6.2, gps:'sí', fotos:14, ia:'4 hallazgos', est:'crit'},
+  {h:'11:45', sitio:'Centro Comercial Sur', sup:'V. Alcántara', cal:8.6, gps:'sí', fotos:7, ia:'conforme', est:'ok'},
+  {h:'12:30', sitio:'Terminal Aérea T2', sup:'A. Durán', cal:7.6, gps:'no', fotos:4, ia:'sin evidencia', est:'warn'},
+  {h:'13:10', sitio:'Hospital Metropolitano', sup:'E. Quintero', cal:8.9, gps:'sí', fotos:10, ia:'conforme', est:'ok'}
+];
+
+const escalamiento = [
+  {alerta:'Terminal Aérea T2 · calificación 6.2 en sala de última espera', resp:'Jefatura de Operaciones Aeropuerto', sla:'4 h', trans:'5 h 12 min', est:'crit'},
+  {alerta:'Auditorio Nacional · consumibles en Sanitarios Ala Sur', resp:'Coordinación de sitio', sla:'8 h', trans:'3 h 05 min', est:'warn'},
+  {alerta:'Centro Comercial Sur · WHZ-0345 con 2 interrupciones', resp:'Coordinación de robótica', sla:'24 h', trans:'1 h 40 min', est:'ok'}
+];
+
+
+/* ============================ simulación del sitio ============================ */
+/* Plano esquemático del Auditorio Nacional. No es un plano arquitectónico:
+   las zonas guardan la relación de superficie y vecindad, no la geometría real. */
+const Z = {
+  explanada:   {x:40, y:24,  w:920, h:74,  n:'Explanada',            m2:9500, plan:9500},
+  sanNorte:    {x:40, y:108, w:120, h:78,  n:'Sanitarios Norte',     m2:420,  plan:420},
+  vestibulo:   {x:172,y:108, w:620, h:78,  n:'Vestíbulo principal',  m2:3200, plan:3200},
+  alimentos:   {x:804,y:108, w:156, h:78,  n:'Área de alimentos',    m2:640,  plan:640},
+  pasilloOeste:{x:40, y:198, w:120, h:208, n:'Pasillo Oeste',        m2:3200, plan:3200},
+  luneta:      {x:172,y:198, w:620, h:208, n:'Luneta',               m2:5400, plan:5400},
+  pasilloEste: {x:804,y:198, w:156, h:208, n:'Pasillo Este',         m2:3700, plan:3700},
+  sanSur:      {x:40, y:418, w:120, h:74,  n:'Sanitarios Sur',       m2:420,  plan:420},
+  primerPiso:  {x:172,y:418, w:400, h:74,  n:'Primer piso',          m2:4100, plan:520},
+  balcon:      {x:584,y:418, w:376, h:74,  n:'Balcón',               m2:2800, plan:620},
+  estac:       {x:40, y:504, w:920, h:88,  n:'Estacionamiento P1',   m2:7400, plan:0, fuera:'fuera del plan del día'}
+};
+const PLAN_TOTAL = Object.values(Z).reduce((s,z)=>s+z.plan,0);
+const cen = k => [Z[k].x+Z[k].w/2, Z[k].y+Z[k].h/2];
+
+/* ruta en serpentina dentro de una zona */
+function serp(k, pasadas, ins){
+  const z=Z[k]; ins=ins||16;
+  const x0=z.x+ins, x1=z.x+z.w-ins, y0=z.y+ins, y1=z.y+z.h-ins;
+  const dy=pasadas>1?(y1-y0)/(pasadas-1):0, p=[];
+  for(let i=0;i<pasadas;i++){
+    const y=y0+i*dy;
+    if(i%2===0) p.push([x0,y],[x1,y]); else p.push([x1,y],[x0,y]);
+  }
+  return p;
+}
+
+const corridas=[
+  {rid:'WHZ-0412', rut:'RUT-01', z:'luneta',     a:390, b:485, m2:1640, plan:96,  bat:[86,41], pts:serp('luneta',7)},
+  {rid:'WHZ-0412', rut:'RUT-02', z:'primerPiso', a:550, b:640, m2:200,  plan:38,  bat:[41,24], pts:serp('primerPiso',3), trunc:.38, halt:592},
+  {rid:'WHZ-0533', rut:'RUT-04', z:'vestibulo',  a:375, b:470, m2:1180, plan:100, bat:[100,72],pts:serp('vestibulo',3)},
+  {rid:'WHZ-0533', rut:'RUT-09', z:'balcon',     a:500, b:595, m2:620,  plan:100, bat:[72,61], pts:serp('balcon',3)},
+  {rid:'WHZ-0533', rut:'RUT-04', z:'vestibulo',  a:630, b:695, m2:0,    plan:100, bat:[61,48], pts:serp('vestibulo',3), repaso:true}
+];
+corridas.forEach(c=>{
+  c.len=[0]; let L=0;
+  for(let i=1;i<c.pts.length;i++){ L+=Math.hypot(c.pts[i][0]-c.pts[i-1][0], c.pts[i][1]-c.pts[i-1][1]); c.len.push(L); }
+  c.total=L;
+  c.d='M '+c.pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L ');
+});
+function puntoEn(c,frac){
+  const t=Math.max(0,Math.min(1,frac))*c.total;
+  for(let i=1;i<c.len.length;i++){
+    if(c.len[i]>=t){
+      const s=(t-c.len[i-1])/((c.len[i]-c.len[i-1])||1);
+      return [c.pts[i-1][0]+(c.pts[i][0]-c.pts[i-1][0])*s, c.pts[i-1][1]+(c.pts[i][1]-c.pts[i-1][1])*s];
+    }
+  }
+  return c.pts[c.pts.length-1];
+}
+/* fracción del recorrido ya cubierta a la hora t */
+function cubierto(c,t){
+  if(t<=c.a) return 0;
+  const tope=c.trunc||1;
+  const p = c.halt ? Math.min((t-c.a)/(c.halt-c.a),1) : Math.min((t-c.a)/(c.b-c.a),1);
+  return p*tope;
+}
+
+const robots=[
+  {id:'WHZ-0412', mod:'Whiz i'},
+  {id:'WHZ-0533', mod:'Whiz i'},
+  {id:'SCR-118',  mod:'Fregadora autónoma', fuera:'Fuera de servicio desde el 18 nov', pos:[160,560]}
+];
+function estadoRobot(id,t){
+  const cs=corridas.filter(c=>c.rid===id);
+  let m2=0, bat=cs.length?cs[0].bat[0]:100, act=null, hechas=0;
+  for(const c of cs){
+    const tope=c.trunc||1, cub=cubierto(c,t);
+    m2 += c.m2*(cub/tope);
+    if(t>=c.b){ bat=c.bat[1]; hechas++; }
+    else if(t>=c.a){ const p=(t-c.a)/(c.b-c.a); bat=c.bat[0]+(c.bat[1]-c.bat[0])*p; act={c,cub,p}; }
+  }
+  const det = act && act.c.halt && t>=act.c.halt;
+  return {m2, bat, act, hechas, det, total:cs.length};
+}
+
+const personal=[
+  {n:'M. Ortega',  z:'vestibulo',   a:352, b:843, ph:0.2, cov:{vestibulo:1.00},
+   rut:'RUT-08', mov:'A'},
+  {n:'J. Rangel',  z:'luneta',      a:358, b:840, ph:1.3, cov:{luneta:0.72},
+   rut:'RUT-06', mov:'A'},
+  {n:'L. Cruz',    z:'sanNorte',    a:381, b:842, ph:2.1, cov:{sanNorte:1.00},
+   rut:'RUT-03', mov:'A', nota:'retardo 21 min'},
+  {n:'R. Salinas', z:'sanSur',      a:400, b:845, ph:0.7, cov:{sanSur:0.94},
+   rut:'RUT-03', mov:'A', nota:'cobertura'},
+  {n:'P. Herrera', z:'pasilloEste', a:355, b:838, ph:3.0, cov:{pasilloOeste:1.00, pasilloEste:1.00, alimentos:0.85},
+   rut:'RUT-10', mov:'A'},
+  {n:'D. Nava',    z:'explanada',   a:365, b:841, ph:1.8, cov:{explanada:0.95},
+   rut:'RUT-05', mov:'A'}
+];
+const ausente={n:'A. Mendoza', z:'sanSur', rut:'RUT-03', mov:'F', nota:'falta — plaza cubierta 06:40'};
+function posPersona(p,t){
+  const z=Z[p.z], cx=z.x+z.w/2, cy=z.y+z.h/2;
+  return [cx+(z.w/2-26)*Math.sin(t*0.11+p.ph), cy+(z.h/2-16)*Math.sin(t*0.067+p.ph*2.7)];
+}
+
+const supRuta=[
+  {t:360,z:'vestibulo'},{t:390,z:'vestibulo'},{t:399,z:'sanNorte'},{t:410,z:'luneta'},
+  {t:420,z:'alimentos'},{t:430,z:'vestibulo'},{t:548,z:'vestibulo'},{t:555,z:'sanSur'},
+  {t:570,z:'sanSur'},{t:580,z:'vestibulo'},{t:718,z:'vestibulo'},{t:728,z:'luneta'},
+  {t:742,z:'pasilloEste'},{t:755,z:'vestibulo'},{t:840,z:'vestibulo'}
+];
+function posSup(t){
+  for(let i=1;i<supRuta.length;i++){
+    if(t<=supRuta[i].t){
+      const a=supRuta[i-1], b=supRuta[i], s=(t-a.t)/((b.t-a.t)||1);
+      const pa=cen(a.z), pb=cen(b.z);
+      return [pa[0]+(pb[0]-pa[0])*s, pa[1]+(pb[1]-pa[1])*s];
+    }
+  }
+  return cen('vestibulo');
+}
+function supEstado(t){
+  if(t>=555&&t<570) return {txt:'Levantando supervisión formal', z:'Sanitarios Ala Sur', k:'crit'};
+  if(t>=390&&t<430) return {txt:'Recorrido de apertura', z:'—', k:'ok'};
+  if(t>=718&&t<755) return {txt:'Recorrido de cierre', z:'—', k:'ok'};
+  if(t<390) return {txt:'Previo al recorrido', z:'—', k:''};
+  return {txt:'En caseta de supervisión', z:'Vestíbulo', k:''};
+}
+
+/* cobertura de una zona a la hora t, contra el plan del día */
+function covZona(k,t){
+  const z=Z[k];
+  if(!z.plan) return {h:0,r:0,tot:0};
+  let h=0,r=0;
+  personal.forEach(p=>{
+    const w=p.cov[k]; if(!w||t<=p.a) return;
+    h += w*Math.min((t-p.a)/(p.b-p.a),1);
+  });
+  corridas.filter(c=>c.z===k&&!c.repaso).forEach(c=>{
+    const tope=c.trunc||1;
+    r += (c.m2/z.plan)*(cubierto(c,t)/tope);
+  });
+  const tot=Math.min(1,h+r);
+  return {h,r,tot};
+}
+function covSitio(t){
+  let cub=0;
+  for(const k in Z) cub += Z[k].plan*covZona(k,t).tot;
+  return cub/PLAN_TOTAL;
+}
+
+const eventos=[
+  {t:352,k:'h',  x:'M. Ortega marca entrada en el biométrico — Vestíbulo principal'},
+  {t:355,k:'h',  x:'P. Herrera marca entrada — ronda de pasillos'},
+  {t:358,k:'h',  x:'J. Rangel marca entrada — Luneta'},
+  {t:360,k:'crit',x:'Sanitarios Ala Sur abre el turno sin persona asignada'},
+  {t:365,k:'h',  x:'D. Nava marca entrada — Explanada'},
+  {t:375,k:'r',  x:'WHZ-0533 lanza RUT-04 · fregado autónomo de Vestíbulo'},
+  {t:381,k:'warn',x:'L. Cruz entra con 21 min de retardo — Sanitarios Norte'},
+  {t:390,k:'r',  x:'WHZ-0412 lanza RUT-01 · barrido mecánico de Luneta'},
+  {t:390,k:'s',  x:'S. Félix inicia recorrido de apertura'},
+  {t:400,k:'h',  x:'R. Salinas cubre la plaza de A. Mendoza — 40 min de hueco'},
+  {t:470,k:'r',  x:'WHZ-0533 cierra RUT-04 al 100% · 1,180 m²'},
+  {t:485,k:'r',  x:'WHZ-0412 cierra RUT-01 al 96% · 1,640 m²'},
+  {t:500,k:'r',  x:'WHZ-0533 lanza RUT-09 · barrido de Balcón'},
+  {t:550,k:'r',  x:'WHZ-0412 lanza RUT-02 · Primer piso, plan parcial de 520 m²'},
+  {t:555,k:'s',  x:'S. Félix levanta supervisión formal — GPS confirmado, 6 fotos'},
+  {t:557,k:'crit',x:'Sanitarios Ala Sur calificado 4.2 · sin reposición de consumibles'},
+  {t:558,k:'crit',x:'Alerta escalada a Coordinación de sitio — SLA 8 h'},
+  {t:560,k:'warn',x:'Visión IA: 2 personas sin cofia en Área de alimentos (conf. 0.91)'},
+  {t:592,k:'warn',x:'WHZ-0412 detenido: obstáculo persistente (tarima de evento)'},
+  {t:595,k:'r',  x:'WHZ-0533 cierra RUT-09 al 100% · 620 m²'},
+  {t:630,k:'r',  x:'WHZ-0533 lanza repaso de Vestíbulo — no suma superficie nueva'},
+  {t:640,k:'warn',x:'WHZ-0412 termina RUT-02 al 38% · 200 m² de 520'},
+  {t:695,k:'r',  x:'WHZ-0533 cierra repaso · batería al 48%'},
+  {t:718,k:'s',  x:'S. Félix inicia recorrido de cierre'},
+  {t:838,k:'h',  x:'Inicia salida del personal del turno'},
+  {t:840,k:'crit',x:'Cierre: Estacionamiento P1 sin atención — 7,400 m² fuera del plan'}
+];
+
+/* ============================ rutinas de limpieza ============================ */
+const rutinas=[
+  {id:'RUT-01', n:'Barrido mecánico de Luneta', z:'Luneta', ej:'robot', frec:'Diaria post-evento', dur:95, m2:5400,
+   ins:'Equipo WHZ · depósito y filtro', ver:'Telemetría + foto de cierre',
+   plan:[390,485], real:[390,485], pc:96,
+   pasos:['Verificar que la sala esté libre de obstáculos y tarimas','Confirmar plano y zona cargados en el equipo',
+          'Lanzar la corrida y registrar quién la lanzó','Acompañar las primeras dos pasadas',
+          'Recibir el reporte de m² y porcentaje de plan','Vaciar depósito, limpiar filtro y poner a cargar']},
+  {id:'RUT-02', n:'Barrido mecánico de Primer piso', z:'Primer piso', ej:'robot', frec:'Diaria', dur:90, m2:520,
+   ins:'Equipo WHZ', ver:'Telemetría',
+   plan:[550,640], real:[550,592], pc:38, est:'parcial'},
+  {id:'RUT-03', n:'Desinfección de sanitarios', z:'Sanitarios Norte y Sur', ej:'persona', frec:'3× por turno', dur:25, m2:840,
+   ins:'Desinfectante, fibra, señalización, bitácora', ver:'Foto + visión IA de consumibles',
+   plan:[390,415], real:[390,418], pc:100,
+   pasos:['Señalizar el área y bloquear el acceso','Retirar residuos y cambiar bolsa',
+          'Lavar y desinfectar tazas y mingitorios','Limpiar lavabos, espejos y mamparas',
+          'Trapear con solución desinfectante','Reponer papel, jabón y toalla',
+          'Firmar bitácora y tomar foto de cierre']},
+  {id:'RUT-04', n:'Fregado autónomo de Vestíbulo', z:'Vestíbulo principal', ej:'robot', frec:'Diaria', dur:95, m2:3200,
+   ins:'Equipo WHZ · solución de fregado', ver:'Telemetría + foto de cierre',
+   plan:[375,470], real:[375,470], pc:100},
+  {id:'RUT-05', n:'Recolección de residuos de Explanada', z:'Explanada', ej:'persona', frec:'4× por turno', dur:35, m2:9500,
+   ins:'Carro, bolsas, pinza, escoba', ver:'Foto por recorrido',
+   plan:[365,400], real:[365,404], pc:100},
+  {id:'RUT-06', n:'Detallado de butacas', z:'Luneta, Primer piso, Balcón', ej:'persona', frec:'Semanal', dur:240, m2:12300,
+   ins:'Aspiradora de mochila, cepillo, quitamanchas', ver:'Muestreo por fila + foto',
+   plan:[420,660], real:[425,668], pc:100},
+  {id:'RUT-07', n:'Reposición de consumibles', z:'Sanitarios Norte y Sur', ej:'persona', frec:'2× por turno', dur:20,
+   ins:'Papel, jabón, toalla, aromatizante', ver:'Visión IA · dispensadores con carga',
+   plan:[540,560], real:null, pc:0, est:'no ejecutada'},
+  {id:'RUT-08', n:'Cristales y canceles', z:'Vestíbulo, Pasillos', ej:'persona', frec:'Semanal', dur:180,
+   ins:'Jalador, limpiavidrios, andamio ligero', ver:'Foto antes y después',
+   plan:[480,660], real:[484,664], pc:100},
+  {id:'RUT-09', n:'Barrido de Balcón', z:'Balcón', ej:'robot', frec:'Diaria', dur:95, m2:2800,
+   ins:'Equipo WHZ', ver:'Telemetría',
+   plan:[500,595], real:[500,595], pc:100},
+  {id:'RUT-10', n:'Pulido de pisos duros', z:'Vestíbulo, Pasillos', ej:'persona + máquina', frec:'Mensual', dur:300,
+   ins:'Pulidora, disco, sellador', ver:'Acta de entrega + foto',
+   plan:[600,840], real:[608,840], pc:92, est:'en curso'},
+  {id:'RUT-11', n:'Barrido de Estacionamiento P1', z:'Estacionamiento P1', ej:'persona', frec:'Diaria', dur:60, m2:7400,
+   ins:'Escoba industrial, carro, bolsas', ver:'Foto por nivel',
+   plan:null, real:null, pc:0, est:'fuera del plan'}
+];
+
+/* ============================ utilidades ============================ */
+const el = (t,c,h)=>{const n=document.createElement(t); if(c)n.className=c; if(h!=null)n.innerHTML=h; return n;};
+const estName = e => e==='ok'?'En meta':e==='atencion'?'Atención':e==='critico'?'Crítico':e;
+const estCls  = e => e==='ok'?'ok':e==='critico'||e==='crit'?'crit':'warn';
+
+function tiles(list){
+  const w=el('div','tiles');
+  list.forEach(t=>{
+    const d=el('div','tile');
+    d.append(el('div','k',t.k), el('div','v',t.v), el('div','n',t.n), el('div','src',t.src));
+    w.append(d);
+  });
+  return w;
+}
+function sec(title, ...kids){
+  const s=el('section','sec'); if(title) s.append(el('h3',null,title)); kids.forEach(k=>k&&s.append(k)); return s;
+}
+function card(title, sub, ...kids){
+  const c=el('div','card');
+  if(title) c.append(el('h3',null,title));
+  if(sub) c.append(el('p','sub',sub));
+  const b=el('div'); b.style.marginTop=title?'12px':'0';
+  kids.forEach(k=>k&&b.append(k)); c.append(b); return c;
+}
+function tabla(cols, rows, cap){
+  const w=el('div','scroll'), t=el('table');
+  if(cap) t.append(el('caption',null,cap));
+  const th=el('tr'); cols.forEach(c=>{const x=el('th',c.n?'n':null,c.t); th.append(x);});
+  t.append(el('thead').appendChild(th).parentNode);
+  const tb=el('tbody');
+  rows.forEach(r=>{
+    const tr=el('tr', r._alerta?'alerta':null);
+    r.cells.forEach((c,i)=>tr.append(el('td',cols[i].n?'n':null,c)));
+    tb.append(tr);
+  });
+  t.append(tb); w.append(t); return w;
+}
+
+/* ============================ tooltip ============================ */
+const tip=document.getElementById('tip');
+function bindTip(node, title, meta){
+  node.addEventListener('pointerenter',e=>{
+    tip.innerHTML = '<b>'+title+'</b>'+(meta?'<span class="m">'+meta+'</span>':'');
+    tip.style.opacity='1'; move(e);
+  });
+  node.addEventListener('pointermove',move);
+  node.addEventListener('pointerleave',()=>{tip.style.opacity='0';});
+  function move(e){
+    const pad=12, w=tip.offsetWidth, h=tip.offsetHeight;
+    let x=e.clientX+pad, y=e.clientY-h-pad;
+    if(x+w>innerWidth-8) x=e.clientX-w-pad;
+    if(y<8) y=e.clientY+pad;
+    tip.style.left=x+'px'; tip.style.top=y+'px';
+  }
+}
+
+/* ============================ vista: panorama ============================ */
+function viewPanorama(){
+  const v=document.getElementById('v-panorama'); v.textContent='';
+  const head=el('div','vhead');
+  head.append(el('h2',null,'Panorama del grupo'),
+    el('p',null,'Los ocho sitios activos de Grupo Batia en un solo corte: cuánto del plan se cubrió, quién estuvo, qué hizo el robot y qué dijo el supervisor. Cada cifra indica de qué sistema viene.'));
+  v.append(head, tiles(grupo.tiles));
+
+  /* barras: cobertura por sitio — una sola serie, sin leyenda */
+  const bars=el('div','bars');
+  [...grupo.sitios].sort((a,b)=>b.cob-a.cob).forEach(s=>{
+    const row=el('div','bar-row');
+    const lab=el('div','lab');
+    lab.append(document.createTextNode(s.s+' '));
+    if(s.rb) lab.append(el('span','code','· '+s.rb+(s.rb>1?' robots':' robot')));
+    const track=el('div','bar-track'), fill=el('div','bar-fill');
+    fill.style.width=s.cob+'%';
+    if(s.est==='critico') fill.style.background='var(--crit)';
+    else if(s.est==='atencion') fill.style.background='var(--warn)';
+    track.append(fill);
+    bindTip(row, s.s, s.cob+'% del plan · asistencia '+s.asis+'% · calificación '+s.cal+' · '+F(s.m2)+' m²');
+    row.append(lab, track, el('div','val',s.cob.toFixed(1)+'%'));
+    bars.append(row);
+  });
+  const metaLine=el('p','sub','Meta del grupo: 96%. Las barras ámbar y roja marcan los sitios fuera de meta.');
+  metaLine.style.marginTop='10px';
+
+  /* barras apiladas: superficie atendida por línea — 2 series, leyenda + etiqueta directa */
+  const st=el('div','bars');
+  const maxTot=Math.max(...grupo.lineas.map(l=>l.h+l.r));
+  grupo.lineas.forEach(l=>{
+    const tot=l.h+l.r, row=el('div','bar-row');
+    row.append(el('div','lab',l.l));
+    const stack=el('div','stack');
+    stack.style.width=(tot/maxTot*100)+'%';
+    const a=el('i'); a.style.width=(l.h/tot*100)+'%'; a.style.background='var(--lane-h)';
+    stack.append(a);
+    if(l.r){const b=el('i'); b.style.width=(l.r/tot*100)+'%'; b.style.background='var(--lane-r)'; stack.append(b);}
+    const holder=el('div'); holder.style.minWidth='0'; holder.append(stack);
+    bindTip(row, l.l, 'Personal '+F(l.h)+' m² · robot '+F(l.r)+' m² · total '+F(tot)+' m²');
+    row.append(holder, el('div','val',F(tot)));
+    st.append(row);
+  });
+  const leg=el('div','legend');
+  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-h)"></i>Personal</span>'+
+                '<span><i class="swatch" style="background:var(--lane-r)"></i>Robot</span>'+
+                '<span class="code">m² atendidos hoy</span>';
+  leg.style.marginTop='10px';
+
+  const g=el('div','grid'); g.style.gridTemplateColumns='repeat(auto-fit,minmax(320px,1fr))';
+  g.append(
+    card('Cobertura del plan por sitio','Porcentaje del plan del día efectivamente cubierto.',bars,metaLine),
+    card('Superficie atendida por línea de negocio','Metros cuadrados de hoy, separados por quién los atendió.',st,leg)
+  );
+  v.append(g);
+
+  v.append(card('Sitios activos','Un clic en el renglón del Auditorio Nacional abre el turno completo en la vista Sitio.',
+    tabla(
+      [{t:'Sitio'},{t:'Línea'},{t:'Ubicación'},{t:'m²',n:1},{t:'Robots',n:1},{t:'Cobertura',n:1},{t:'Asistencia',n:1},{t:'Calificación',n:1},{t:'Estado'}],
+      grupo.sitios.map(s=>({
+        _alerta:s.est==='critico',
+        cells:[
+          s.foco?'<a href="#sitio"><b>'+s.s+'</b></a>':s.s, s.l, s.g, F(s.m2), s.rb||'—',
+          s.cob.toFixed(1)+'%', s.asis.toFixed(1)+'%', s.cal.toFixed(1),
+          '<span class="chip '+estCls(s.est)+'"><i class="dot"></i>'+estName(s.est)+'</span>'
+        ]}))
+    )
+  ));
+}
+
+/* ============================ vista: sitio (línea de tiempo) ============================ */
+const LANE = {h:{c:'var(--lane-h)',n:'Personal'}, r:{c:'var(--lane-r)',n:'Robot'}, s:{c:'var(--lane-s)',n:'Supervisión'}, x:{c:'var(--crit)',n:'Hueco'}};
+
+function timeline(){
+  const GUT=168, RM=26, W=1000, PW=W-GUT-RM, t0=sitio.t0, t1=sitio.t1;
+  const X = m => GUT + (Math.max(t0,Math.min(t1,m))-t0)/(t1-t0)*PW;
+  const RH=27, HEAD=36, LABH=21, GAP=13;
+  const svgNS='http://www.w3.org/2000/svg';
+  const mk=(t,a={})=>{const n=document.createElementNS(svgNS,t); for(const k in a) n.setAttribute(k,a[k]); return n;};
+
+  /* medir alto */
+  let y=HEAD, groups=[];
+  sitio.filas.forEach(f=>{ if(f.g){ y+=GAP+LABH; groups.push(f.g);} y+=RH; });
+  const H=y+10;
+
+  const svg=mk('svg',{class:'tl',viewBox:'0 0 '+W+' '+H,role:'img',
+    'aria-label':'Línea de tiempo del turno con los carriles de personal, robots, supervisión y huecos de cobertura'});
+
+  const defs=mk('defs');
+  const pat=mk('pattern',{id:'hatch',width:'7',height:'7',patternTransform:'rotate(45)',patternUnits:'userSpaceOnUse'});
+  pat.append(mk('rect',{width:'7',height:'7',fill:'var(--surface-2)'}));
+  pat.append(mk('line',{x1:'0',y1:'0',x2:'0',y2:'7',stroke:'var(--line-2)','stroke-width':'2.5'}));
+  defs.append(pat); svg.append(defs);
+
+  /* rejilla horaria */
+  for(let m=t0;m<=t1;m+=60){
+    const x=X(m);
+    svg.append(mk('line',{x1:x,y1:HEAD-12,x2:x,y2:H-10,stroke:'var(--line)','stroke-width':'1'}));
+    const tx=mk('text',{x:x,y:HEAD-20,fill:'var(--ink-3)','font-family':'var(--mono)','font-size':'10.5','text-anchor':'middle'});
+    tx.textContent=hm(m); svg.append(tx);
+  }
+  for(let m=t0+30;m<t1;m+=60){
+    const x=X(m);
+    svg.append(mk('line',{x1:x,y1:HEAD-4,x2:x,y2:H-10,stroke:'var(--line)','stroke-width':'1','stroke-dasharray':'2 5',opacity:'.7'}));
+  }
+
+  /* filas */
+  y=HEAD;
+  sitio.filas.forEach(f=>{
+    if(f.g){
+      y+=GAP;
+      const lab=mk('text',{x:'0',y:y+13,fill:'var(--ink-3)','font-family':'var(--body)','font-size':'10.5','font-weight':'600','letter-spacing':'1.1'});
+      lab.textContent=f.g.toUpperCase(); svg.append(lab);
+      svg.append(mk('line',{x1:'0',y1:y+19,x2:W,y2:y+19,stroke:'var(--line-2)','stroke-width':'1'}));
+      y+=LABH;
+    }
+    const cy=y+RH/2, col=LANE[f.lane].c;
+
+    const nm=mk('text',{x:'0',y:cy+1,fill:'var(--ink)','font-family':'var(--mono)','font-size':'11','dominant-baseline':'middle'});
+    nm.textContent=f.nom; svg.append(nm);
+    const mt=mk('text',{x:'0',y:cy+13,fill:'var(--ink-3)','font-family':'var(--body)','font-size':'10','dominant-baseline':'middle'});
+    mt.textContent=(f.meta||'')+(f.mov?' · '+f.mov:''); svg.append(mt);
+
+    if(f.falta){
+      const r=mk('rect',{x:X(t0),y:cy-8,width:PW,height:16,rx:'4',fill:'url(#hatch)',stroke:'var(--line-2)','stroke-width':'1'});
+      svg.append(r); bindTip(r, f.nom, f.falta);
+      const t=mk('text',{x:X(t0)+10,y:cy+1,fill:'var(--ink-3)','font-family':'var(--body)','font-size':'10.5','dominant-baseline':'middle'});
+      t.textContent=f.falta; svg.append(t);
+    }
+
+    (f.blocks||[]).forEach(b=>{
+      const x1=X(b.a), x2=X(b.b), w=Math.max(6,x2-x1-2);
+      const fill = b.kind==='crit'?'var(--crit)' : b.kind==='warn'?'var(--warn)' : col;
+      const r=mk('rect',{x:x1,y:cy-7,width:w,height:14,rx:'4',fill:fill});
+      r.style.cursor='default'; svg.append(r);
+      bindTip(r, f.nom+' · '+hm(b.a)+'–'+hm(b.b), b.tip);
+      if(b.lab && w>86){
+        const t=mk('text',{x:x1+8,y:cy+1,fill:'var(--surface)','font-family':'var(--body)','font-size':'10','font-weight':'500','dominant-baseline':'middle'});
+        t.textContent=b.lab; t.style.pointerEvents='none'; svg.append(t);
+      } else if(b.lab){
+        const t=mk('text',{x:x2+6,y:cy+1,fill:'var(--ink-2)','font-family':'var(--body)','font-size':'10','dominant-baseline':'middle'});
+        t.textContent=b.lab; svg.append(t);
+      }
+    });
+
+    (f.marks||[]).forEach(m=>{
+      const x=X(m.t), c = m.kind==='warn'?'var(--warn)':'var(--lane-s)';
+      const g=mk('g');
+      g.append(mk('circle',{cx:x,cy:cy,r:'7.5',fill:'var(--surface)'}));
+      g.append(mk('circle',{cx:x,cy:cy,r:'5.5',fill:c}));
+      svg.append(g); bindTip(g, hm(m.t), m.tip);
+    });
+
+    y+=RH;
+  });
+
+  const wrap=el('div','tl-wrap'); wrap.append(svg);
+  return wrap;
+}
+
+function viewSitio(){
+  const v=document.getElementById('v-sitio'); v.textContent='';
+  const head=el('div','vhead');
+  head.append(el('h2',null,sitio.nombre+' · turno 06:00–14:00'), el('p',null,sitio.contexto));
+  const ch=el('div','chips');
+  ch.innerHTML='<span class="src-chip">asistencia: biométrico + SINGA</span>'+
+               '<span class="src-chip">zonas y reportes: AsistIA</span>'+
+               '<span class="src-chip">supervisión: CRM Supervisiones</span>'+
+               '<span class="src-chip">evidencia: visión IA</span>'+
+               '<span class="src-chip">robots: módulo de robótica</span>';
+  head.append(ch);
+  v.append(head);
+
+  v.append(tiles([
+    {k:'Asistencia', v:'13 / 14', n:'1 falta (F) · 1 retardo · 1 cobertura', src:'Biométrico + SINGA'},
+    {k:'Superficie del plan', v:'27,620', n:'m² programados hoy de 42,000 del sitio', src:'Programa del turno'},
+    {k:'m² por robot', v:'3,640', n:'2 equipos · 1 fuera de servicio', src:'Módulo de robótica'},
+    {k:'Zonas sin atender', v:'1', n:'Estacionamiento P1 · fuera del plan del día', src:'Plan vs. los tres carriles'},
+    {k:'Supervisión', v:'7.4', n:'09:15 · GPS confirmado · 6 fotos', src:'CRM Supervisiones'},
+    {k:'Zona crítica', v:'4.2', n:'Sanitarios Ala Sur', src:'CRM Supervisiones'}
+  ]));
+
+  const leg=el('div','legend');
+  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-h)"></i>Personal</span>'+
+    '<span><i class="swatch" style="background:var(--lane-r)"></i>Robot</span>'+
+    '<span><i class="swatch" style="background:var(--lane-s)"></i>Supervisión</span>'+
+    '<span><i class="swatch" style="background:var(--crit)"></i>Hueco de cobertura</span>'+
+    '<span><i class="swatch" style="background:var(--warn)"></i>Corrida interrumpida</span>'+
+    '<span class="code">pasa el cursor sobre cualquier bloque</span>';
+  leg.style.marginBottom='12px';
+
+  v.append(card('El turno completo en un solo eje',
+    'Cada carril viene de un sistema distinto. Puestos uno encima de otro, aparece lo que ninguno de los tres muestra por separado.',
+    leg, timeline()));
+
+  const hall=el('div');
+  sitio.hallazgos.forEach((h,i)=>{
+    const f=el('div','find');
+    f.append(el('div','num',String(i+1).padStart(2,'0')));
+    const b=el('div');
+    b.append(el('h4',null,h.t), el('p',null,h.p), el('p','why',h.w));
+    f.append(b); hall.append(f);
+  });
+  v.append(card('Lo que solo se ve al unir los tres carriles', null, hall));
+
+  const g=el('div','grid'); g.style.gridTemplateColumns='repeat(auto-fit,minmax(340px,1fr))';
+  g.append(
+    card('Cobertura por zona','Minutos de personal, metros de robot y si alguien verificó el resultado.',
+      tabla([{t:'Zona'},{t:'m²',n:1},{t:'min persona',n:1},{t:'m² robot',n:1},{t:'Supervisada'},{t:'Calif.',n:1}],
+        sitio.zonas.map(z=>({_alerta:z.alerta,cells:[
+          z.z, F(z.m2), z.min?F(z.min):'0', z.rm2?F(z.rm2):'0',
+          z.sup==='sí'?'<span class="chip ok"><i class="dot"></i>sí</span>':'<span class="chip"><i class="dot"></i>no</span>',
+          z.cal!=null?z.cal.toFixed(1):'—'
+        ]}))
+      )),
+    card('Evidencia de la supervisión de las 09:15','Hallazgo del supervisor y lo que detectaron los modelos sobre sus fotos.',
+      tabla([{t:'Zona'},{t:'Hallazgo del supervisor'},{t:'Detección de IA'},{t:'Modelo'},{t:'Conf.',n:1}],
+        sitio.evidencia.map(e=>({_alerta:e.est==='crit',cells:[
+          e.z,e.h,e.ia,'<span class="code">'+e.mod+'</span>',e.c.toFixed(2)
+        ]}))
+      ))
+  );
+  v.append(g);
+}
+
+/* ============================ vista: flota ============================ */
+function viewFlota(){
+  const v=document.getElementById('v-flota'); v.textContent='';
+  const head=el('div','vhead');
+  head.append(el('h2',null,'Flota de robots'),
+    el('p',null,'El inventario de equipos del grupo, de cualquier marca, con lo que hizo cada uno en el turno. El módulo de robótica guarda cada corrida con la misma clave de inmueble que usa SINGA y ligada a la rutina del catálogo que ejecuta: por eso el robot y la persona caben en la misma tabla.'));
+  v.append(head);
+
+  const act=flota.robots.filter(r=>r.est==='operando');
+  v.append(tiles([
+    {k:'Equipos en flota', v:String(flota.robots.length), n:act.length+' operando · 1 fuera de servicio · 1 en mantenimiento', src:'Inventario de robótica'},
+    {k:'m² robotizados hoy', v:F(flota.robots.reduce((s,r)=>s+r.m2,0)), n:'en 5 de 8 sitios', src:'Módulo de robótica'},
+    {k:'Plan cumplido', v:(act.reduce((s,r)=>s+r.plan,0)/act.length).toFixed(1)+'%', n:'promedio de los equipos operando', src:'Módulo de robótica'},
+    {k:'Interrupciones', v:String(flota.robots.reduce((s,r)=>s+r.err,0)), n:'en 3 equipos distintos', src:'Módulo de robótica'}
+  ]));
+
+  v.append(card('Equipos','Estado al cierre del turno de las 14:00.',
+    tabla([{t:'Equipo'},{t:'Modelo'},{t:'Marca'},{t:'Sitio'},{t:'Plan',n:1},{t:'m² hoy',n:1},{t:'Batería',n:1},{t:'Errores',n:1},{t:'Estado'}],
+      flota.robots.map(r=>({
+        _alerta:r.est==='fuera',
+        cells:[
+          '<span class="code">'+r.id+'</span>', r.mod, r.marca, r.sitio,
+          r.est==='operando'?r.plan+'%':'—', r.m2?F(r.m2):'—',
+          r.est==='operando'?r.bat+'%':'—', r.err||'0',
+          r.est==='operando'
+            ? (r.plan>=95?'<span class="chip ok"><i class="dot"></i>operando</span>':'<span class="chip warn"><i class="dot"></i>bajo plan</span>')
+            : r.est==='fuera'?'<span class="chip crit"><i class="dot"></i>fuera de servicio</span>'
+            :'<span class="chip"><i class="dot"></i>mantenimiento</span>'
+        ]}))
+    )));
+
+  const n=el('div','note');
+  n.innerHTML='<b>Por qué este modelo y no otro.</b> Los campos obligatorios son exactamente los que permiten sumar el trabajo del robot al del personal en la misma zona y el mismo turno: inmueble, zona, rutina y tiempo. Sin esos cuatro, la telemetría del equipo queda como una isla y vuelve a pasar lo de siempre: un tablero de robots por un lado y la operación por el otro.';
+  v.append(card('Modelo de datos de una corrida','Lo que el módulo de robótica guarda cada vez que un equipo trabaja.',
+    tabla([{t:'Campo'},{t:'Qué es'},{t:'Nivel'}],
+      flota.campos.map(c=>({cells:[
+        '<span class="code">'+c.c+'</span>', c.d,
+        c.req==='obligatorio'?'<span class="chip ok"><i class="dot"></i>obligatorio</span>':'<span class="chip"><i class="dot"></i>deseable</span>'
+      ]}))
+    ), n));
+}
+
+/* ============================ vista: supervisión ============================ */
+function viewSupervision(){
+  const v=document.getElementById('v-supervision'); v.textContent='';
+  const head=el('div','vhead');
+  head.append(el('h2',null,'Supervisión y escalamiento'),
+    el('p',null,'Cada supervisión lleva calificación, GPS, fotos y la lectura de los modelos sobre esas fotos. Lo que no cumple no se queda en una cifra: entra a la matriz de escalamiento con dueño y tiempo de respuesta.'));
+  v.append(head);
+
+  const prom=(supervisiones.reduce((s,x)=>s+x.cal,0)/supervisiones.length).toFixed(1);
+  v.append(tiles([
+    {k:'Supervisiones del día', v:String(supervisiones.length), n:'8 sitios · 8 supervisores', src:'CRM Supervisiones'},
+    {k:'Calificación promedio', v:prom, n:'meta 8.0', src:'CRM Supervisiones'},
+    {k:'Con evidencia de IA', v:'9 / 11', n:'una sin GPS, otra sin fotos suficientes', src:'Visión IA'},
+    {k:'Alertas en escalamiento', v:'3', n:'1 con SLA vencido', src:'Matriz de escalamiento'}
+  ]));
+
+  v.append(card('Supervisiones de hoy','El renglón del Auditorio Nacional es el que se abre en la vista Sitio.',
+    tabla([{t:'Hora'},{t:'Sitio'},{t:'Supervisor'},{t:'Calif.',n:1},{t:'GPS'},{t:'Fotos',n:1},{t:'Lectura de IA'},{t:'Estado'}],
+      supervisiones.map(s=>({
+        _alerta:s.est==='crit',
+        cells:[
+          '<span class="code">'+s.h+'</span>',
+          s.foco?'<a href="#sitio">'+s.sitio+'</a>':s.sitio,
+          s.sup, s.cal.toFixed(1),
+          s.gps==='sí'?'<span class="chip ok"><i class="dot"></i>sí</span>':'<span class="chip warn"><i class="dot"></i>no</span>',
+          s.fotos, s.ia,
+          '<span class="chip '+estCls(s.est)+'"><i class="dot"></i>'+(s.est==='ok'?'en meta':s.est==='warn'?'atención':'crítico')+'</span>'
+        ]}))
+    )));
+
+  v.append(card('Escalamiento abierto','Dueño, tiempo de respuesta comprometido y tiempo transcurrido.',
+    tabla([{t:'Alerta'},{t:'Responsable'},{t:'SLA'},{t:'Transcurrido'},{t:'Estado'}],
+      escalamiento.map(e=>({
+        _alerta:e.est==='crit',
+        cells:[e.alerta,e.resp,e.sla,e.trans,
+          '<span class="chip '+estCls(e.est)+'"><i class="dot"></i>'+(e.est==='crit'?'SLA vencido':e.est==='warn'?'en tiempo':'en tiempo')+'</span>']
+      }))
+    )));
+}
+
+/* ============================ vista: mapa vivo ============================ */
+const SVGNS='http://www.w3.org/2000/svg';
+const mk=(t,a)=>{const n=document.createElementNS(SVGNS,t); for(const k in (a||{})) n.setAttribute(k,a[k]); return n;};
+
+const sim={t:562, play:true, vel:60, raf:0, last:0, drag:false, nEv:-1, capas:{rutas:true,estela:true,personal:true,sup:true,cobertura:true}};
+const R={};  /* referencias a nodos vivos */
+
+function viewMapa(){
+  const v=document.getElementById('v-mapa'); v.textContent='';
+  const head=el('div','vhead');
+  head.append(el('h2',null,'Mapa vivo · Auditorio Nacional'),
+    el('p',null,'El turno del 24 de noviembre reproducido sobre el plano del sitio. Los robots recorren la ruta real de cada rutina, el personal se mueve por su zona y el supervisor hace sus recorridos. Todo lo que ves se calcula a partir de la hora simulada: mueve la barra y el sitio completo se recalcula a ese minuto.'));
+  v.append(head);
+
+  const ctrl=barraTiempo('mapa','hora del sitio');
+
+  const capas=el('div','layers');
+  [['rutas','Rutas planeadas','var(--lane-r)'],['estela','Estela cubierta','var(--lane-r)'],
+   ['personal','Personal','var(--lane-h)'],['sup','Supervisor','var(--lane-s)'],
+   ['cobertura','Cobertura por zona','var(--brand)']].forEach(([k,lab,c])=>{
+    const b=el('button','lay','<i></i>'+lab); b.type='button';
+    b.style.setProperty('--c',c);
+    b.setAttribute('aria-pressed', sim.capas[k]?'true':'false');
+    b.addEventListener('click',()=>{ sim.capas[k]=!sim.capas[k]; b.setAttribute('aria-pressed',sim.capas[k]?'true':'false'); dibuja(); });
+    capas.append(b);
+  });
+
+  /* ---- plano ---- */
+  const box=el('div','mapbox');
+  const svg=mk('svg',{class:'plan',viewBox:'0 0 1000 616',role:'img',
+    'aria-label':'Plano esquemático del Auditorio Nacional con la posición de robots, personal y supervisor a la hora simulada'});
+  const defs=mk('defs');
+  const pt=mk('pattern',{id:'fuera',width:'8',height:'8',patternTransform:'rotate(45)',patternUnits:'userSpaceOnUse'});
+  pt.append(mk('rect',{width:'8',height:'8',fill:'transparent'}));
+  pt.append(mk('line',{x1:'0',y1:'0',x2:'0',y2:'8',stroke:'var(--line-2)','stroke-width':'2'}));
+  defs.append(pt); svg.append(defs);
+
+  const gZona=mk('g'), gRuta=mk('g'), gEstela=mk('g'), gTxt=mk('g'), gPers=mk('g'), gRob=mk('g');
+  svg.append(gZona,gRuta,gEstela,gTxt,gPers,gRob);
+  R.zonas={}; R.caps={gRuta,gEstela,gPers};
+
+  for(const k in Z){
+    const z=Z[k], g=mk('g');
+    g.append(mk('rect',{x:z.x,y:z.y,width:z.w,height:z.h,rx:'7',fill:'var(--surface-2)',stroke:'var(--line)','stroke-width':'1'}));
+    const tint=mk('rect',{x:z.x,y:z.y,width:z.w,height:z.h,rx:'7',fill:'var(--brand)','fill-opacity':'0'});
+    g.append(tint);
+    if(z.fuera) g.append(mk('rect',{x:z.x,y:z.y,width:z.w,height:z.h,rx:'7',fill:'url(#fuera)',stroke:'var(--line-2)','stroke-width':'1','stroke-dasharray':'5 4'}));
+    const borde=mk('rect',{x:z.x,y:z.y,width:z.w,height:z.h,rx:'7',fill:'none',stroke:'transparent','stroke-width':'2'});
+    g.append(borde);
+
+    const nm=mk('text',{x:z.x+11,y:z.y+19,fill:'var(--ink-2)','font-family':'var(--body)','font-size':'11.5','font-weight':'500'});
+    nm.textContent=z.n;
+    const m2=mk('text',{x:z.x+11,y:z.y+33,fill:'var(--ink-3)','font-family':'var(--mono)','font-size':'9.5'});
+    m2.textContent = z.plan ? F(z.plan)+' m² de plan' : F(z.m2)+' m² · '+z.fuera;
+    g.append(nm,m2);
+
+    /* barra de cobertura al pie de la zona */
+    const bw=z.w-22, by=z.y+z.h-13;
+    g.append(mk('rect',{x:z.x+11,y:by,width:bw,height:5,rx:'2.5',fill:'var(--surface-3)'}));
+    const bh=mk('rect',{x:z.x+11,y:by,width:'0',height:5,rx:'2.5',fill:'var(--lane-h)'});
+    const br=mk('rect',{x:z.x+11,y:by,width:'0',height:5,rx:'2.5',fill:'var(--lane-r)'});
+    g.append(bh,br);
+    const pcv=mk('text',{x:z.x+z.w-11,y:by-3,fill:'var(--ink-3)','font-family':'var(--mono)','font-size':'9.5','text-anchor':'end'});
+    g.append(pcv);
+    gZona.append(g);
+    R.zonas[k]={tint,borde,bh,br,pcv,bw};
+    bindTip(g, z.n, z.plan ? F(z.plan)+' m² de plan · '+F(z.m2)+' m² de superficie' : F(z.m2)+' m² · '+z.fuera);
+  }
+
+  /* rutas y estelas de cada corrida */
+  R.corridas=corridas.map(c=>{
+    const ruta=mk('path',{d:c.d,fill:'none',stroke:'var(--lane-r)','stroke-width':'2','stroke-dasharray':'3 6','stroke-opacity':'.22','stroke-linecap':'round'});
+    gRuta.append(ruta);
+    const est=mk('path',{d:c.d,fill:'none',stroke:'var(--lane-r)','stroke-width':'8','stroke-opacity':'.30','stroke-linecap':'round','stroke-linejoin':'round'});
+    est.setAttribute('stroke-dasharray',c.total);
+    est.setAttribute('stroke-dashoffset',c.total);
+    gEstela.append(est);
+    return {c,ruta,est};
+  });
+
+  /* personal */
+  R.pers=personal.map(p=>{
+    const g=mk('g');
+    const pulso=mk('circle',{r:'13',fill:'var(--lane-h)','fill-opacity':'0'});
+    g.append(pulso);
+    g.append(mk('circle',{r:'7.5',fill:'var(--surface)'}));
+    g.append(mk('circle',{r:'5.2',fill:'var(--lane-h)'}));
+    const t=mk('text',{x:'11',y:'-3',fill:'var(--ink)','font-family':'var(--mono)','font-size':'9.5','dominant-baseline':'middle'});
+    t.textContent=p.n; g.append(t);
+    const sub=mk('text',{x:'11',y:'6.5',fill:'var(--ink-3)','font-family':'var(--mono)','font-size':'8.5','dominant-baseline':'middle'});
+    sub.textContent=p.rut; g.append(sub);
+    gPers.append(g);
+    bindTip(g,p.n,p.rut+' · '+Z[p.z].n+' · movimiento '+p.mov+(p.nota?' · '+p.nota:''));
+    return {p,g,t,sub,pulso};
+  });
+  /* supervisor */
+  const gs=mk('g');
+  gs.append(mk('circle',{r:'9',fill:'var(--surface)'}));
+  gs.append(mk('circle',{r:'6.5',fill:'var(--lane-s)'}));
+  const st=mk('text',{fill:'var(--ink-2)','font-family':'var(--mono)','font-size':'9.5','dominant-baseline':'middle'});
+  st.textContent='S. Félix'; gs.append(st);
+  const halo=mk('circle',{r:'14',fill:'none',stroke:'var(--lane-s)','stroke-width':'1.5','stroke-opacity':'0'});
+  gs.append(halo);
+  gPers.append(gs);
+  R.sup={g:gs,t:st,halo};
+  bindTip(gs,'S. Félix','Supervisor de turno');
+
+  /* robots */
+  R.rob=robots.map(r=>{
+    const g=mk('g');
+    const pulso=mk('circle',{r:'16',fill:'var(--lane-r)','fill-opacity':'0'});
+    g.append(pulso);
+    g.append(mk('circle',{r:'11',fill:'var(--surface)'}));
+    const cuerpo=mk('rect',{x:'-7',y:'-7',width:'14',height:'14',rx:'4',fill:r.fuera?'var(--ink-3)':'var(--lane-r)'});
+    g.append(cuerpo);
+    const t=mk('text',{x:'15',y:'0',fill:'var(--ink)','font-family':'var(--mono)','font-size':'10','font-weight':'500','dominant-baseline':'middle'});
+    t.textContent=r.id; g.append(t);
+    const sub=mk('text',{x:'15',y:'11',fill:'var(--ink-3)','font-family':'var(--body)','font-size':'9','dominant-baseline':'middle'});
+    g.append(sub);
+    gRob.append(g);
+    bindTip(g,r.id,r.mod+(r.fuera?' · '+r.fuera:''));
+    return {r,g,cuerpo,t,sub,pulso};
+  });
+  box.append(svg);
+
+  /* ---- panel lateral ---- */
+  const side=el('div','side');
+  const lt=el('div','livetiles');
+  R.lt={};
+  [['plan','Cobertura del plan'],['m2r','m² por robot'],['pres','Personal en sitio'],['alerta','Alertas abiertas']].forEach(([k,lab])=>{
+    const d=el('div','lt'); d.append(el('div','k',lab));
+    const vv=el('div','v','—'); d.append(vv); lt.append(d); R.lt[k]=vv;
+  });
+  side.append(lt);
+
+  /* personal en sitio, renglón por persona */
+  const pl=el('div','plist');
+  const ph=el('h4','','Personal en sitio <span id="pcount">—</span>');
+  pl.append(ph);
+  R.pcards=personal.map(p=>{
+    const row=el('div','prow');
+    const nm=el('div','nm','<b>'+p.n+'</b><em>'+p.rut+' · '+Z[p.z].n+'</em>');
+    const mn=el('div','mn','—');
+    row.append(el('div','pd'),nm,mn);
+    pl.append(row);
+    bindTip(row,p.n,p.rut+' · '+Z[p.z].n+(p.nota?' · '+p.nota:''));
+    return {p,row,mn};
+  });
+  const fila=el('div','prow off');
+  fila.append(el('div','pd'),
+    el('div','nm','<b>'+ausente.n+'</b><em>'+ausente.rut+' · '+Z[ausente.z].n+'</em>'),
+    el('div','mn','falta (F)'));
+  bindTip(fila, ausente.n, ausente.nota);
+  pl.append(fila);
+  const filaSup=el('div','prow sup');
+  filaSup.append(el('div','pd'),
+    el('div','nm','<b>S. Félix</b><em>supervisor de turno</em>'));
+  const supMn=el('div','mn','—'); filaSup.append(supMn);
+  pl.append(filaSup);
+  R.supMn=supMn;
+  side.append(pl);
+
+  R.cards=robots.map(r=>{
+    const c=el('div','rbot');
+    const hd=el('div','hd'); hd.innerHTML='<b>'+r.id+'</b>';
+    const chip=el('span'); hd.append(chip);
+    const stt=el('div','st');
+    const kv=el('div','kv');
+    kv.innerHTML='<div><div class="k">Rutina</div><div class="v" data-f="rut">—</div></div>'+
+                 '<div><div class="k">m² hoy</div><div class="v" data-f="m2">—</div></div>'+
+                 '<div><div class="k">Plan</div><div class="v" data-f="pc">—</div></div>';
+    const bat=el('div','bat'); const bf=el('i'); bat.append(bf);
+    const bl=el('div','st');
+    c.append(hd,stt,kv,bat,bl); side.append(c);
+    return {r,chip,stt,kv,bf,bl};
+  });
+
+  const sup=el('div','rbot');
+  sup.innerHTML='<div class="hd"><b>S. Félix</b><span>supervisor</span></div>';
+  const supSt=el('div','st'); sup.append(supSt); side.append(sup);
+  R.supCard=supSt;
+
+  const log=el('div','log'); log.append(el('h4',null,'Bitácora del turno'));
+  const logBody=el('div'); log.append(logBody); side.append(log);
+  R.log=logBody;
+
+  const grid=el('div','mapgrid'); grid.append(box,side);
+
+  const leg=el('div','legend');
+  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-r)"></i>Robot y su estela</span>'+
+    '<span><i class="swatch" style="background:var(--lane-h)"></i>Personal</span>'+
+    '<span><i class="swatch" style="background:var(--lane-s)"></i>Supervisor</span>'+
+    '<span><i class="swatch" style="background:var(--crit)"></i>Zona sin cobertura</span>'+
+    '<span class="code">plano esquemático · no es un plano arquitectónico</span>';
+
+  v.append(ctrl,capas,grid,leg);
+  dibujos.push(dibujaMapa);
+  sincPlay(); dibuja();
+}
+
+/* ---- reloj compartido por las vistas en vivo ---- */
+const relojes=[], dibujos=[];
+function barraTiempo(suf, etiqueta){
+  const ctrl=el('div','ctrl');
+  const play=el('button','play'); play.type='button'; play.id='play-'+suf;
+  const clock=el('div','clock');
+  clock.innerHTML='<small>'+etiqueta+'</small><span>'+hm(Math.floor(sim.t))+'</span>';
+  const hora=clock.querySelector('span');
+  const spd=el('div','spd');
+  [[1,'1×'],[30,'30×'],[60,'60×'],[300,'300×']].forEach(([val,lab])=>{
+    const b=el('button',null,lab); b.type='button'; b.dataset.v=val;
+    b.setAttribute('aria-pressed', val===sim.vel?'true':'false');
+    b.addEventListener('click',()=>{
+      sim.vel=val;
+      relojes.forEach(r=>r.spd.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed', x.dataset.v==String(val)?'true':'false')));
+    });
+    spd.append(b);
+  });
+  const scrub=el('input');
+  Object.assign(scrub,{type:'range',min:'360',max:'840',step:'1',id:'scrub-'+suf});
+  scrub.setAttribute('aria-label','Hora del turno');
+  scrub.value=String(Math.round(sim.t));
+  scrub.addEventListener('pointerdown',()=>sim.drag=true);
+  scrub.addEventListener('pointerup',()=>sim.drag=false);
+  scrub.addEventListener('input',()=>{ sim.t=+scrub.value; sim.nEv=-1; dibuja(); });
+  const reset=el('button','lay','↺ 06:00'); reset.type='button';
+  reset.addEventListener('click',()=>{ sim.t=360; sim.nEv=-1; dibuja(); });
+  play.addEventListener('click',()=>{ sim.play=!sim.play; if(sim.play&&sim.t>=840) sim.t=360; sincPlay(); });
+  ctrl.append(play,clock,spd,scrub,reset);
+  relojes.push({play,hora,scrub,spd});
+  return ctrl;
+}
+function sincPlay(){
+  relojes.forEach(r=>{ r.play.textContent = sim.play ? '❚❚  Pausa' : '▶  Reproducir'; });
+}
+function dibuja(){
+  const t=sim.t;
+  relojes.forEach(r=>{
+    r.hora.textContent=hm(Math.floor(t));
+    if(!sim.drag) r.scrub.value=String(Math.round(t));
+  });
+  dibujos.forEach(f=>f(t));
+}
+
+function dibujaMapa(t){
+  if(!R.zonas) return;
+
+  /* zonas */
+  for(const k in R.zonas){
+    const n=R.zonas[k], z=Z[k], c=covZona(k,t);
+    n.tint.setAttribute('fill-opacity', sim.capas.cobertura ? (0.03+0.13*c.tot).toFixed(3) : '0');
+    const hw=Math.max(0,Math.min(1,c.h))*n.bw, rw=Math.max(0,Math.min(1,c.r))*n.bw;
+    n.bh.setAttribute('width',hw.toFixed(1));
+    n.br.setAttribute('x',(z.x+11+hw).toFixed(1));
+    n.br.setAttribute('width',Math.min(rw,n.bw-hw).toFixed(1));
+    n.pcv.textContent = z.plan ? Math.round(c.tot*100)+'%' : '';
+    const vacia = z.plan && c.tot<0.02 && t>400;
+    n.borde.setAttribute('stroke', vacia?'var(--crit)' : (z.plan&&c.tot>=0.995?'var(--ok)':'transparent'));
+    n.borde.setAttribute('stroke-opacity', vacia?'.9':'.45');
+  }
+
+  /* capas */
+  R.caps.gRuta.style.display = sim.capas.rutas?'':'none';
+  R.caps.gEstela.style.display = sim.capas.estela?'':'none';
+
+  /* estelas */
+  R.corridas.forEach(({c,est})=>{
+    const cub=cubierto(c,t);
+    est.setAttribute('stroke-dashoffset', (c.total*(1-cub)).toFixed(1));
+    est.setAttribute('stroke-opacity', c.repaso?'.16':'.30');
+  });
+
+  /* personal */
+  let presentes=0;
+  R.pers.forEach(({p,g,pulso},i)=>{
+    const activo = t>=p.a && t<=p.b;
+    g.style.display = (activo && sim.capas.personal) ? '' : 'none';
+    if(activo){
+      presentes++;
+      const [x,y]=posPersona(p,t);
+      g.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+')');
+      pulso.setAttribute('fill-opacity',(0.09+0.07*Math.sin(t*1.7+p.ph*3)).toFixed(3));
+    }
+    const c=R.pcards[i];
+    const min=Math.max(0,Math.min(t,p.b)-p.a);
+    c.row.className='prow'+(activo?'':' pend');
+    c.mn.textContent = t<p.a ? 'sin marcar' : activo ? Math.round(min)+' min' : 'salida '+hm(p.b);
+    if(activo&&p.nota&&t-p.a<90) c.mn.textContent=p.nota;
+  });
+  const pc=document.getElementById('pcount');
+  if(pc) pc.textContent=presentes+' de 7';
+  const [sx,sy]=posSup(t);
+  R.sup.g.style.display = sim.capas.sup?'':'none';
+  R.sup.g.setAttribute('transform','translate('+sx.toFixed(1)+' '+sy.toFixed(1)+')');
+  R.sup.t.setAttribute('x','13'); R.sup.t.setAttribute('y','0');
+  const se=supEstado(t);
+  R.sup.halo.setAttribute('stroke-opacity', se.k==='crit'?'.8':'0');
+  if(R.supMn) R.supMn.textContent = t>=555 ? 'calif. 7.4' : t>=390 ? 'en recorrido' : 'sin marcar';
+  R.supCard.innerHTML='<b>'+se.txt+'</b>'+(se.z!=='—'?' · '+se.z:'')+
+    (t>=555?'<br><span class="code">supervisión 09:15 · calificación 7.4 · GPS confirmado · 6 fotos</span>':'');
+
+  /* robots */
+  let m2tot=0;
+  R.rob.forEach(({r,g,cuerpo,sub,pulso},i)=>{
+    if(r.fuera){
+      g.setAttribute('transform','translate('+r.pos[0]+' '+r.pos[1]+')');
+      sub.textContent='fuera de servicio';
+      pulso.setAttribute('fill-opacity','0');
+      return;
+    }
+    const e=estadoRobot(r.id,t); m2tot+=e.m2;
+    let x,y, ultima=null;
+    if(e.act){ const p=puntoEn(e.act.c, e.act.cub/(e.act.c.trunc||1)); x=p[0]; y=p[1]; }
+    else {
+      ultima=corridas.filter(c=>c.rid===r.id&&t>=c.b).pop();
+      if(ultima){ const p=puntoEn(ultima, ultima.trunc||1); x=p[0]; y=p[1]; }
+      else { const pr=corridas.find(c=>c.rid===r.id); const p=puntoEn(pr,0); x=p[0]; y=p[1]; }
+    }
+    g.setAttribute('transform','translate('+x.toFixed(1)+' '+y.toFixed(1)+')');
+    const enMarcha = e.act && !e.det;
+    cuerpo.setAttribute('fill', e.det?'var(--warn)':(enMarcha?'var(--lane-r)':'var(--ink-3)'));
+    pulso.setAttribute('fill-opacity', enMarcha ? (0.10+0.08*Math.sin(t*2.2)).toFixed(3) : '0');
+    sub.textContent = e.det ? 'detenido' : enMarcha ? e.act.c.rut+' · '+Z[e.act.c.z].n : (t>=840?'turno cerrado':'en espera');
+
+    const card=R.cards[i];
+    card.chip.textContent = e.det?'detenido' : enMarcha?'operando' : 'en espera';
+    card.chip.style.color = e.det?'var(--warn)':enMarcha?'var(--ok)':'var(--ink-3)';
+    card.stt.innerHTML = e.det
+      ? '<b>Obstáculo persistente</b> · tarima de evento en '+Z[e.act.c.z].n
+      : enMarcha ? '<b>'+Z[e.act.c.z].n+'</b> · pasada en curso'
+      : (e.hechas?'<b>'+e.hechas+' de '+e.total+' rutinas</b> cerradas':'Sin corrida iniciada');
+    const f=q=>card.kv.querySelector('[data-f="'+q+'"]');
+    f('rut').textContent = (enMarcha||e.det) ? e.act.c.rut : ultima ? ultima.rut : '—';
+    f('m2').textContent = F(Math.round(e.m2));
+    f('pc').textContent = (enMarcha||e.det) ? Math.round(e.act.cub/(e.act.c.trunc||1)*e.act.c.plan)+'%'
+                        : ultima ? ultima.plan+'%' : '—';
+    const b=Math.max(0,Math.min(100,e.bat));
+    card.bf.style.width=b.toFixed(0)+'%';
+    card.bf.style.background = b<25?'var(--crit)':b<45?'var(--warn)':'var(--ok)';
+    card.bl.innerHTML='Batería <b>'+b.toFixed(0)+'%</b>';
+  });
+
+  /* tiles vivos */
+  const alertas = eventos.filter(e=>e.t<=t&&e.k==='crit').length;
+  R.lt.plan.textContent=(covSitio(t)*100).toFixed(1)+'%';
+  R.lt.m2r.textContent=F(Math.round(m2tot));
+  R.lt.pres.textContent=presentes+' / 7';
+  R.lt.alerta.textContent=String(alertas);
+
+  /* bitácora */
+  const vis=eventos.filter(e=>e.t<=t);
+  if(vis.length!==sim.nEv){
+    sim.nEv=vis.length;
+    R.log.textContent='';
+    vis.slice().reverse().forEach(e=>{
+      const d=el('div','ev '+e.k);
+      d.innerHTML='<time>'+hm(e.t)+'</time><i></i><p>'+e.x+'</p>';
+      R.log.append(d);
+    });
+  }
+}
+
+function loop(ts){
+  if(!sim.last) sim.last=ts;
+  const dt=Math.min(0.1,(ts-sim.last)/1000); sim.last=ts;
+  if(sim.play && !sim.drag){
+    sim.t += dt*sim.vel;
+    if(sim.t>=840){ sim.t=840; sim.play=false; sincPlay(); }
+  }
+  dibuja();
+  sim.raf=requestAnimationFrame(loop);
+}
+let vivos=0;
+function vivoOn(){
+  vivos++;
+  if(vivos===1 && matchMedia('(prefers-reduced-motion: reduce)').matches){ sim.play=false; }
+  sincPlay();
+  if(!sim.raf){ sim.last=0; sim.raf=requestAnimationFrame(loop); }
+  dibuja();
+}
+function vivoOff(){
+  vivos=Math.max(0,vivos-1);
+  if(!vivos && sim.raf){ cancelAnimationFrame(sim.raf); sim.raf=0; }
+}
+
+/* ============================ vista: rutinas ============================ */
+function viewRutinas(){
+  const v=document.getElementById('v-rutinas'); v.textContent='';
+  const head=el('div','vhead');
+  head.append(el('h2',null,'Rutinas de limpieza'),
+    el('p',null,'Cada zona tiene rutinas con frecuencia, duración, insumos y forma de verificar. Una rutina la ejecuta una persona, un robot o las dos cosas, y eso no cambia cómo se mide: se compara lo programado contra lo ejecutado, y se exige la misma evidencia.'));
+  v.append(head);
+
+  const ejec=rutinas.filter(r=>r.real);
+  v.append(tiles([
+    {k:'Rutinas del catálogo', v:String(rutinas.length), n:'5 por robot · 5 por persona · 1 mixta', src:'Catálogo de sitio'},
+    {k:'Programadas hoy', v:'10', n:'RUT-11 no entró al plan del día', src:'Programa del turno'},
+    {k:'Ejecutadas', v:String(ejec.length), n:'1 parcial · 1 no ejecutada · 1 en curso', src:'AsistIA + telemetría'},
+    {k:'Con evidencia', v:'8 / 9', n:'RUT-02 cerró sin foto de cierre', src:'Visión IA + fotos'}
+  ]));
+
+  /* programa del turno: plan vs. real */
+  const g=el('div','gantt');
+  const gh=el('div','g-head');
+  gh.append(el('div',null,'Rutina'), el('div',null,'06:00 — 14:00 · punteado: programado · lleno: ejecutado'), el('div',null,'Cumpl.'));
+  g.append(gh);
+  const X=m=>((Math.max(360,Math.min(840,m))-360)/480*100);
+  rutinas.forEach(r=>{
+    const row=el('div','g-row');
+    const nm=el('div','nm','<b>'+r.id+'</b>'+r.n);
+    const tr=el('div','g-track');
+    for(let m=420;m<840;m+=60){ const k=el('div','tick'); k.style.left=X(m)+'%'; tr.append(k); }
+    if(r.plan){ const p=el('div','plan'); p.style.left=X(r.plan[0])+'%'; p.style.width=(X(r.plan[1])-X(r.plan[0]))+'%'; tr.append(p); }
+    if(r.real){
+      const d=el('div','real'); d.style.left=X(r.real[0])+'%'; d.style.width=Math.max(1.2,X(r.real[1])-X(r.real[0]))+'%';
+      d.style.background = r.ej==='robot' ? 'var(--lane-r)' : r.est==='parcial' ? 'var(--warn)' : 'var(--lane-h)';
+      tr.append(d);
+    }
+    if(!r.plan){ const p=el('div','plan'); p.style.left='0'; p.style.width='100%'; p.style.borderColor='var(--crit)'; tr.append(p); }
+    else if(!r.real){ const p=el('div','plan'); p.style.left=X(r.plan[0])+'%'; p.style.width=(X(r.plan[1])-X(r.plan[0]))+'%'; p.style.borderColor='var(--crit)'; tr.append(p); }
+    const pc=el('div','pc', r.est==='fuera del plan' ? '—' : r.pc+'%');
+    if(r.pc<100&&r.est!=='fuera del plan') pc.style.color='var(--warn)';
+    if(!r.real&&r.plan) pc.style.color='var(--crit)';
+    bindTip(row, r.id+' · '+r.n,
+      (r.plan?'Programado '+hm(r.plan[0])+'–'+hm(r.plan[1]):'Sin programar hoy')+
+      (r.real?' · ejecutado '+hm(r.real[0])+'–'+hm(r.real[1]):' · no ejecutado')+
+      ' · '+r.ej+' · '+r.z);
+    row.append(nm,tr,pc); g.append(row);
+  });
+  const leg=el('div','legend');
+  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-h)"></i>Ejecutada por persona</span>'+
+    '<span><i class="swatch" style="background:var(--lane-r)"></i>Ejecutada por robot</span>'+
+    '<span><i class="swatch" style="background:var(--warn)"></i>Parcial</span>'+
+    '<span><i class="swatch" style="background:transparent;border:1.5px dashed var(--crit)"></i>Programada sin ejecutar</span>';
+  leg.style.marginTop='10px';
+  v.append(card('Programa del turno','Lo programado contra lo que de verdad pasó, en el mismo eje del turno.',g,leg));
+
+  v.append(card('Catálogo de rutinas','La misma ficha para una rutina de persona y una de robot: eso es lo que permite compararlas.',
+    tabla([{t:'Clave'},{t:'Rutina'},{t:'Zona'},{t:'Ejecuta'},{t:'Frecuencia'},{t:'Dur.',n:1},{t:'m²',n:1},{t:'Verificación'}],
+      rutinas.map(r=>({
+        _alerta:r.est==='fuera del plan'||(!r.real&&r.plan),
+        cells:[
+          '<span class="code">'+r.id+'</span>', r.n, r.z,
+          r.ej==='robot'?'<span class="chip" style="color:var(--lane-r);border-color:var(--lane-r)"><i class="dot"></i>robot</span>'
+            :r.ej==='persona'?'<span class="chip" style="color:var(--lane-h);border-color:var(--lane-h)"><i class="dot"></i>persona</span>'
+            :'<span class="chip"><i class="dot"></i>'+r.ej+'</span>',
+          r.frec, r.dur+' min', r.m2?F(r.m2):'—', r.ver
+        ]}))
+    )));
+
+  const r3=rutinas.find(r=>r.id==='RUT-03'), r1=rutinas.find(r=>r.id==='RUT-01');
+  const two=el('div','grid'); two.style.gridTemplateColumns='repeat(auto-fit,minmax(300px,1fr))';
+  [r3,r1].forEach(r=>{
+    const ps=el('div','pasos');
+    r.pasos.forEach((p,i)=>{
+      const d=el('div','paso');
+      d.append(el('div','i',String(i+1).padStart(2,'0')));
+      d.append(el('div',null,p));
+      ps.append(d);
+    });
+    const meta=el('p','sub');
+    meta.innerHTML='<span class="code">'+r.ej+' · '+r.frec+' · '+r.dur+' min</span><br>Insumos: '+r.ins+'<br>Verificación: '+r.ver;
+    meta.style.marginBottom='10px';
+    two.append(card(r.id+' · '+r.n, r.z, meta, ps));
+  });
+  v.append(sec('Dos fichas completas', two));
+
+  const n=el('div','note');
+  n.innerHTML='<b>La rutina es la unidad de medida.</b> Un tablero de equipos mide corridas; una operación se mide por rutinas, y la corrida del robot es solo una forma de ejecutar una de ellas. Al poner la rutina como unidad, el robot y la persona entran a la misma tabla con la misma frecuencia exigida y la misma evidencia — y ahí sí se puede decidir, zona por zona, qué conviene robotizar y qué no.';
+  v.append(n);
+}
+
+/* ============================ torre multi-sitio ============================ */
+const extra={
+  'Auditorio Nacional':         {turno:[360,840], asig:7,  faltas:1, z:['Explanada','Vestíbulo','Luneta','Pasillos','Sanit. N','Sanit. S','1er piso','Balcón','Estac. P1']},
+  'Torre Corporativa Reforma':  {turno:[360,780], asig:9,  faltas:0, z:['Lobby','Pisos 1-10','Pisos 11-20','Sanitarios','Comedor','Estac.']},
+  'Centro Comercial Sur':       {turno:[390,840], asig:22, faltas:1, z:['Pasillo A','Pasillo B','Food court','Sanitarios','Andenes','Estac. N','Estac. S']},
+  'Terminal Aérea T2':          {turno:[360,840], asig:18, faltas:2, z:['Sala A','Sala B','Documentación','Sanitarios','Última espera','Pasillos']},
+  'Corporativo Santa Fe':       {turno:[375,795], asig:6,  faltas:0, z:['Lobby','Oficinas','Sanitarios','Comedor']},
+  'Hospital Metropolitano':     {turno:[360,810], asig:14, faltas:0, z:['Urgencias','Consulta','Quirófanos','Sanitarios','Pasillos','Comedor']},
+  'Planta Industrial Querétaro':{turno:[390,840], asig:11, faltas:0, z:['Nave 1','Nave 2','Oficinas','Comedor','Patios']},
+  'CEDIS Tultitlán':            {turno:[360,825], asig:8,  faltas:1, z:['Andenes','Racks','Oficinas','Sanitarios','Patio']}
+};
+const ZFOCO=['explanada','vestibulo','luneta','pasilloEste','sanNorte','sanSur','primerPiso','balcon','estac'];
+function hsh(s){ let h=7; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))%9973; return h/9973; }
+
+grupo.sitios.forEach(s=>{
+  const e=extra[s.s], d=e.turno[1]-e.turno[0];
+  const n = s.est==='critico'?3 : s.est==='atencion'?2 : (hsh(s.s)>0.6?1:0);
+  s._alertas=Array.from({length:n},(_,i)=>Math.round(e.turno[0]+(0.22+0.2*i+hsh(s.s+'a'+i)*0.18)*d));
+  s._rob=flota.robots.filter(r=>r.sitio===s.s);
+  s._vent=s._rob.filter(r=>r.est==='operando').map((r,i)=>{
+    const h=hsh(s.s+'r'+i), a1=Math.round(e.turno[0]+10+h*50), b1=a1+95;
+    const a2=b1+40+Math.round(h*50), b2=Math.min(e.turno[1]-10,a2+95);
+    return {r, v:[[a1,b1],[a2,b2]].filter(([a,b])=>b>a)};
+  });
+});
+
+function sitioVivo(s,t){
+  const e=extra[s.s], p=Math.max(0,Math.min(1,(t-e.turno[0])/(e.turno[1]-e.turno[0])));
+  let cob = s.foco ? covSitio(t)*100 : p*s.cob;
+  let pres=0; const n=e.asig-e.faltas;
+  for(let i=0;i<n;i++) if(t>=e.turno[0]-8+hsh(s.s+'p'+i)*22 && t<=e.turno[1]+5) pres++;
+  let act=0, m2=0;
+  if(s.foco){
+    act=corridas.filter(c=>t>=c.a&&t<c.b).length;
+    m2=estadoRobot('WHZ-0412',t).m2+estadoRobot('WHZ-0533',t).m2;
+  } else {
+    s._vent.forEach(({r,v})=>{
+      let frac=0;
+      v.forEach(([a,b])=>{ frac+=Math.max(0,Math.min(1,(t-a)/(b-a)))/v.length; if(t>=a&&t<b) act++; });
+      m2+=r.m2*frac;
+    });
+  }
+  const zonas=s.foco
+    ? ZFOCO.map(k=>covZona(k,t).tot)
+    : e.z.map((_,i)=>{ const h=hsh(s.s+'z'+i); return Math.max(0,Math.min(1,p*(s.cob/100+(h-0.5)*0.3))); });
+  const al=s._alertas.filter(x=>t>=x).length;
+  const abierto = t>=e.turno[0] && t<=e.turno[1];
+  return {cob, pres, asig:e.asig, act, nrob:s._rob.length, m2, zonas, al, abierto, z:e.z};
+}
+
+function viewTorre(){
+  const v=document.getElementById('v-torre'); v.textContent='';
+  const head=el('div','vhead');
+  head.append(el('h2',null,'Torre de control'),
+    el('p',null,'Los ocho sitios al mismo minuto. Cada tarjeta avanza con el reloj del grupo: la cobertura sube, el personal va entrando, los robots arrancan y cierran sus corridas, y las alertas aparecen cuando ocurren. Un clic en el Auditorio Nacional abre su mapa.'));
+  v.append(head);
+  v.append(barraTiempo('torre','hora del grupo'));
+
+  const lt=el('div','tiles'); T.tiles={};
+  [['cob','Cobertura del grupo'],['pres','Personal en sitio'],['act','Robots operando'],['m2','m² robotizados'],['al','Avisos del turno'],['ab','Sitios en turno']].forEach(([k,lab])=>{
+    const d=el('div','tile'); d.append(el('div','k',lab));
+    const vv=el('div','v','—'); const nn=el('div','n','');
+    d.append(vv,nn); lt.append(d); T.tiles[k]={v:vv,n:nn};
+  });
+  v.append(lt);
+
+  const grid=el('div','torre');
+  T.cards=grupo.sitios.map(s=>{
+    const c=el('div','sc'+(s.foco?' foco':''));
+    const hd=el('div','hd');
+    const tit=el('div');
+    tit.innerHTML='<b>'+(s.foco?'<a href="#mapa" style="color:inherit;text-decoration:none">'+s.s+' ↗</a>':s.s)+'</b><em>'+s.l+' · '+s.g+'</em>';
+    const chip=el('span','chip'); chip.innerHTML='<i class="dot"></i>—';
+    hd.append(tit,chip);
+
+    const cr=el('div','cobrow');
+    const big=el('span','big','—');
+    cr.append(big,el('span','mt','de cobertura del plan'));
+    const track=el('div','bar-track'), fill=el('div','bar-fill'); track.append(fill);
+
+    const pills=el('div','pills');
+    const pil=extra[s.s].z.map(()=>{ const i=el('i'); const b=el('b'); i.append(b); pills.append(i); return b; });
+
+    const row=el('div','scrow');
+    row.innerHTML='<div><div class="k">Personal</div><div class="v" data-f="p">—</div></div>'+
+                  '<div><div class="k">Robots</div><div class="v" data-f="r">—</div></div>'+
+                  '<div><div class="k">Avisos</div><div class="v" data-f="a">—</div></div>';
+    c.append(hd,cr,track,pills,row);
+    grid.append(c);
+    return {s,chip,big,fill,pil,row,c};
+  });
+  v.append(sec('Sitios', grid));
+
+  const rk=el('div','rank'); T.rank=rk;
+  v.append(card('Orden por cobertura, al minuto','Se reordena conforme avanza el turno. La barra roja marca los sitios bajo la meta de 96%.',rk));
+
+  dibujos.push(dibujaTorre);
+  sincPlay(); dibuja();
+}
+
+const T={};
+function dibujaTorre(t){
+  if(!T.cards) return;
+  let cobW=0, m2W=0, pres=0, asig=0, act=0, nrob=0, al=0, ab=0, m2=0;
+  const datos=[];
+  T.cards.forEach(({s,chip,big,fill,pil,row})=>{
+    const d=sitioVivo(s,t); datos.push({s,d});
+    pres+=d.pres; asig+=d.asig; act+=d.act; nrob+=d.nrob; al+=d.al; m2+=d.m2;
+    if(d.abierto) ab++;
+    cobW+=d.cob*s.m2; m2W+=s.m2;
+    big.textContent=d.cob.toFixed(1)+'%';
+    fill.style.width=Math.max(0,Math.min(100,d.cob))+'%';
+    const bajo = t>extra[s.s].turno[1]-60 && d.cob<96;
+    fill.style.background = bajo?'var(--crit)' : d.al&&s.est==='critico'?'var(--warn)' : 'var(--brand)';
+    d.zonas.forEach((z,i)=>{
+      pil[i].style.width=(z*100).toFixed(0)+'%';
+      pil[i].style.background = z<0.02 ? 'transparent' : z>=0.995 ? 'var(--ok)' : 'var(--brand)';
+    });
+    const f=q=>row.querySelector('[data-f="'+q+'"]');
+    f('p').textContent=d.pres+' / '+d.asig;
+    f('r').textContent=d.nrob?d.act+' de '+d.nrob:'—';
+    f('a').textContent=d.al||'0';
+    const est = !d.abierto ? ['','fuera de turno'] : d.al&&s.est==='critico' ? ['crit','crítico'] : d.al ? ['warn','atención'] : ['ok','en meta'];
+    chip.className='chip '+est[0]; chip.innerHTML='<i class="dot"></i>'+est[1];
+  });
+  T.tiles.cob.v.textContent=(cobW/m2W).toFixed(1)+'%';
+  T.tiles.cob.n.textContent='promedio ponderado por m²';
+  T.tiles.pres.v.textContent=pres;
+  T.tiles.pres.n.textContent='de '+asig+' asignados';
+  T.tiles.act.v.textContent=act;
+  T.tiles.act.n.textContent='de '+nrob+' equipos en sitio';
+  T.tiles.m2.v.textContent=F(Math.round(m2));
+  T.tiles.m2.n.textContent='acumulados en el grupo';
+  T.tiles.al.v.textContent=al;
+  T.tiles.al.n.textContent='desde el inicio del turno';
+  T.tiles.ab.v.textContent=ab+' / 8';
+  T.tiles.ab.n.textContent='sitios con turno abierto';
+
+  datos.sort((a,b)=>b.d.cob-a.d.cob);
+  T.rank.textContent='';
+  datos.forEach(({s,d})=>{
+    const r=el('div','bar-row');
+    r.append(el('div','lab',s.s));
+    const tr=el('div','bar-track'), fl=el('div','bar-fill');
+    fl.style.width=Math.max(0,Math.min(100,d.cob))+'%';
+    fl.style.background = d.cob<96&&t>extra[s.s].turno[1]-60 ? 'var(--crit)' : 'var(--brand)';
+    tr.append(fl);
+    r.append(tr, el('div','val',d.cob.toFixed(1)+'%'));
+    T.rank.append(r);
+  });
+}
+
+/* ============================ control de corridas ============================ */
+const catRobot={
+  'Auditorio Nacional':[
+    {id:'RUT-01',n:'Barrido de Luneta',z:'Luneta',dur:95,m2:5400},
+    {id:'RUT-02',n:'Barrido de Primer piso',z:'Primer piso',dur:90,m2:520},
+    {id:'RUT-04',n:'Fregado de Vestíbulo',z:'Vestíbulo principal',dur:95,m2:3200},
+    {id:'RUT-09',n:'Barrido de Balcón',z:'Balcón',dur:95,m2:620}],
+  'Torre Corporativa Reforma':[
+    {id:'RUT-21',n:'Fregado de Lobby',z:'Lobby',dur:70,m2:900},
+    {id:'RUT-22',n:'Barrido de pisos 1-10',z:'Pisos 1-10',dur:110,m2:2600}],
+  'Centro Comercial Sur':[
+    {id:'RUT-31',n:'Barrido de Pasillo A',z:'Pasillo A',dur:100,m2:3100},
+    {id:'RUT-32',n:'Barrido de Pasillo B',z:'Pasillo B',dur:100,m2:2900},
+    {id:'RUT-33',n:'Fregado de Food court',z:'Food court',dur:95,m2:1800}],
+  'Terminal Aérea T2':[
+    {id:'RUT-41',n:'Fregado de Última espera',z:'Última espera',dur:100,m2:2100},
+    {id:'RUT-42',n:'Barrido de Documentación',z:'Documentación',dur:90,m2:1700}],
+  'Corporativo Santa Fe':[
+    {id:'RUT-51',n:'Fregado de Lobby',z:'Lobby',dur:60,m2:700}]
+};
+const CONSUMO=0.42; /* % de batería por minuto de corrida */
+let cola=[
+  {id:'C-1041', sitio:'Auditorio Nacional', eq:'WHZ-0533', rut:'RUT-04', zona:'Vestíbulo principal', a:375, b:470, m2:3200, est:'ejecutada'},
+  {id:'C-1042', sitio:'Auditorio Nacional', eq:'WHZ-0412', rut:'RUT-01', zona:'Luneta',              a:390, b:485, m2:5400, est:'ejecutada'},
+  {id:'C-1043', sitio:'Terminal Aérea T2',  eq:'SCR-204',  rut:'RUT-42', zona:'Documentación',       a:400, b:490, m2:1700, est:'ejecutada'},
+  {id:'C-1044', sitio:'Auditorio Nacional', eq:'WHZ-0533', rut:'RUT-09', zona:'Balcón',              a:500, b:595, m2:620,  est:'ejecutada'},
+  {id:'C-1045', sitio:'Auditorio Nacional', eq:'WHZ-0412', rut:'RUT-02', zona:'Primer piso',         a:550, b:640, m2:520,  est:'parcial', motivo:'obstáculo persistente al 38%'},
+  {id:'C-1046', sitio:'Centro Comercial Sur',eq:'WHZ-0344',rut:'RUT-33', zona:'Food court',          a:600, b:695, m2:1800, est:'ejecutada'},
+  {id:'C-1047', sitio:'Auditorio Nacional', eq:'WHZ-0533', rut:'RUT-04', zona:'Vestíbulo principal', a:630, b:695, m2:3200, est:'ejecutada'},
+  {id:'C-1048', sitio:'Terminal Aérea T2',  eq:'SCR-204',  rut:'RUT-41', zona:'Última espera',       a:660, b:760, m2:2100, est:'en curso'},
+  {id:'C-1049', sitio:'Centro Comercial Sur',eq:'WHZ-0345',rut:'RUT-31', zona:'Pasillo A',           a:700, b:800, m2:3100, est:'programada'},
+  {id:'C-1050', sitio:'Auditorio Nacional', eq:'WHZ-0412', rut:'RUT-02', zona:'Primer piso',         a:740, b:830, m2:520,  est:'programada'},
+  {id:'C-1051', sitio:'Auditorio Nacional', eq:'SCR-118',  rut:'RUT-04', zona:'Vestíbulo principal', a:420, b:515, m2:3200, est:'cancelada', motivo:'equipo fuera de servicio'}
+];
+let folio=1052, confirmando=null;
+const politicas=[
+  {id:'pol-bat',   t:'No lanzar si la batería proyectada queda bajo 35%', d:'El equipo necesita reserva para volver a la base de carga.', on:true},
+  {id:'pol-solape',t:'Impedir dos corridas del mismo equipo a la misma hora', d:'Un equipo no puede estar en dos zonas al mismo tiempo.', on:true},
+  {id:'pol-turno', t:'Solo dentro del turno del sitio', d:'Fuera del turno no hay supervisor que atienda una interrupción.', on:true},
+  {id:'pol-dup',   t:'Avisar si la rutina ya está programada hoy en esa zona', d:'Evita duplicar superficie y confundir el conteo de m².', on:true},
+  {id:'pol-sup',   t:'Pedir visto bueno del supervisor en zonas con evento', d:'Zonas con público o montaje requieren confirmación en sitio.', on:true}
+];
+const semana=[['lun',4],['mar',5],['mié',4],['jue',5],['vie',6],['sáb',3],['dom',2]];
+
+function viewControl(){
+  const v=document.getElementById('v-control'); v.textContent='';
+  const head=el('div','vhead');
+  head.append(el('h2',null,'Control de corridas'),
+    el('p',null,'Desde aquí se programa y se lanza el trabajo de los equipos, con las mismas reglas para todos los sitios. Cada rutina del catálogo de robótica sabe su zona, su duración y su superficie, así que programar es elegir equipo y hora: lo demás se valida solo.'));
+  const nota=el('div','note');
+  nota.innerHTML='<b>Prototipo.</b> Lo que programes o canceles aquí se guarda en esta página para mostrar cómo funcionaría la pantalla. No se manda ninguna orden a un equipo real.';
+  v.append(head,nota);
+
+  /* ---- formulario ---- */
+  const f=el('div','form');
+  const sitios=Object.keys(catRobot);
+  const mkSel=(id,lab,opts)=>{
+    const d=el('div','fld');
+    const l=el('label',null,lab); l.htmlFor=id;
+    const s=el('select'); s.id=id;
+    opts.forEach(o=>{ const op=el('option',null,o.t); op.value=o.v; if(o.dis) op.disabled=true; s.append(op); });
+    d.append(l,s); return {d,s};
+  };
+  const fs=mkSel('f-sitio','Sitio',sitios.map(x=>({v:x,t:x})));
+  const fe=mkSel('f-equipo','Equipo',[{v:'',t:'—'}]);
+  const fr=mkSel('f-rutina','Rutina',[{v:'',t:'—'}]);
+  const fz=el('div','fld');
+  const lz=el('label',null,'Zona'); lz.htmlFor='f-zona';
+  const iz=el('input'); iz.id='f-zona'; iz.readOnly=true; iz.value='—';
+  fz.append(lz,iz);
+  const fh=el('div','fld');
+  const lh=el('label',null,'Inicio'); lh.htmlFor='f-hora';
+  const ih=el('input'); Object.assign(ih,{type:'time',id:'f-hora',value:'12:30'});
+  fh.append(lh,ih);
+  const frep=mkSel('f-rep','Repetición',[{v:'una',t:'Una vez'},{v:'diaria',t:'Diaria'},{v:'habiles',t:'Días hábiles'},{v:'evento',t:'Post-evento'}]);
+  const fb=el('div','fld');
+  const btn=el('button','btn','Programar corrida'); btn.type='button';
+  fb.append(el('label',null,' '),btn);
+  f.append(fs.d,fe.d,fr.d,fz,fh,frep.d,fb);
+
+  const msg=el('div','msg');
+  const proy=el('p','sub','');
+
+  function equiposDe(sitio){
+    return flota.robots.filter(r=>r.sitio===sitio);
+  }
+  function llena(){
+    const sitio=fs.s.value;
+    fe.s.textContent='';
+    equiposDe(sitio).forEach(r=>{
+      const op=el('option',null,r.id+' · '+r.mod+(r.est!=='operando'?' ('+(r.est==='fuera'?'fuera de servicio':'en mantenimiento')+')':''));
+      op.value=r.id; if(r.est!=='operando') op.disabled=true;
+      fe.s.append(op);
+    });
+    fr.s.textContent='';
+    catRobot[sitio].forEach(r=>{ const op=el('option',null,r.id+' · '+r.n); op.value=r.id; fr.s.append(op); });
+    sinc();
+  }
+  function sinc(){
+    const sitio=fs.s.value, rut=catRobot[sitio].find(x=>x.id===fr.s.value);
+    iz.value = rut?rut.z:'—';
+    const eq=flota.robots.find(r=>r.id===fe.s.value);
+    if(rut&&eq){
+      const p=eq.bat-rut.dur*CONSUMO;
+      proy.innerHTML='Duración '+rut.dur+' min · '+F(rut.m2)+' m² de plan · batería al cierre estimada <b style="color:'+(p<35?'var(--crit)':'var(--ok)')+'">'+Math.max(0,Math.round(p))+'%</b> (desde '+eq.bat+'%)';
+    } else proy.textContent='';
+  }
+  fs.s.addEventListener('change',llena);
+  fr.s.addEventListener('change',sinc);
+  fe.s.addEventListener('change',sinc);
+
+  btn.addEventListener('click',()=>{
+    const sitio=fs.s.value, rut=catRobot[sitio].find(x=>x.id===fr.s.value);
+    const eq=flota.robots.find(r=>r.id===fe.s.value);
+    const pol=k=>politicas.find(p=>p.id===k).on;
+    msg.className='msg';
+    if(!rut||!eq){ msg.className='msg show err'; msg.textContent='Elige equipo y rutina.'; return; }
+    const [H,M]=ih.value.split(':').map(Number);
+    const a=H*60+M, b=a+rut.dur;
+    const errs=[], avisos=[];
+    const e=extra[sitio];
+    if(a<e.turno[0]||b>e.turno[1]) (pol('pol-turno')?errs:avisos).push('La corrida '+hm(a)+'–'+hm(b)+' queda fuera del turno del sitio ('+hm(e.turno[0])+'–'+hm(e.turno[1])+').');
+    const choque=cola.find(c=>c.eq===eq.id&&c.est!=='cancelada'&&a<c.b&&b>c.a);
+    if(choque) (pol('pol-solape')?errs:avisos).push(eq.id+' ya tiene la corrida '+choque.id+' de '+hm(choque.a)+' a '+hm(choque.b)+'.');
+    const p=eq.bat-rut.dur*CONSUMO;
+    if(p<35) (pol('pol-bat')?errs:avisos).push('La batería quedaría en '+Math.max(0,Math.round(p))+'%, abajo del mínimo de 35%.');
+    const dup=cola.find(c=>c.rut===rut.id&&c.zona===rut.z&&c.est!=='cancelada');
+    if(dup&&pol('pol-dup')) avisos.push(rut.id+' ya está en la cola de hoy para '+rut.z+' ('+dup.id+').');
+    if(pol('pol-sup')&&/Luneta|Explanada|Food court|Última espera/.test(rut.z)) avisos.push(rut.z+' es zona con público: la corrida queda sujeta al visto bueno del supervisor en sitio.');
+
+    if(errs.length){ msg.className='msg show err'; msg.innerHTML='<b>No se programó.</b><br>· '+errs.join('<br>· '); return; }
+    cola.push({id:'C-'+(folio++), sitio, eq:eq.id, rut:rut.id, zona:rut.z, a, b, m2:rut.m2, est:'programada', nueva:true});
+    pintaCola();
+    msg.className='msg show '+(avisos.length?'warn':'ok');
+    msg.innerHTML='<b>Programada '+cola[cola.length-1].id+'</b> · '+eq.id+' · '+rut.id+' · '+rut.z+' · '+hm(a)+'–'+hm(b)+
+      (frep.s.value!=='una'?' · repetición: '+frep.s.options[frep.s.selectedIndex].text.toLowerCase():'')+
+      (avisos.length?'<br>· '+avisos.join('<br>· '):'');
+  });
+
+  v.append(card('Programar una corrida','La rutina define zona, duración y superficie. La batería al cierre se estima con el consumo de 0.42% por minuto.',f,proy,msg));
+  llena();
+
+  /* ---- cola ---- */
+  const wrap=el('div'); C.cola=wrap;
+  v.append(card('Cola de hoy','Todas las corridas del día, de todos los sitios. Cada sitio usa las claves de su propio catálogo.',wrap));
+  pintaCola();
+
+  /* ---- políticas ---- */
+  const pw=el('div');
+  politicas.forEach(p=>{
+    const d=el('div','pol');
+    const cb=el('input'); Object.assign(cb,{type:'checkbox',id:p.id,checked:p.on});
+    cb.addEventListener('change',()=>{ p.on=cb.checked; });
+    const l=el('label',null,'<b>'+p.t+'</b><span>'+p.d+'</span>'); l.htmlFor=p.id;
+    d.append(cb,l); pw.append(d);
+  });
+  v.append(card('Reglas de lanzamiento','Se aplican al programar. Apagar una regla no la silencia: la baja de impedimento a aviso.',pw));
+
+  /* ---- calendario ---- */
+  const cal=el('div','cal'), tb=el('table');
+  const tr=el('tr'); tr.append(el('th',null,'Equipo'));
+  semana.forEach(([d])=>tr.append(el('th',null,d)));
+  tb.append(el('thead').appendChild(tr).parentNode);
+  const body=el('tbody');
+  flota.robots.filter(r=>r.est==='operando').forEach((r,ri)=>{
+    const row=el('tr');
+    row.append(el('td',null,'<span class="code">'+r.id+'</span><br><span style="color:var(--ink-3);font-size:11px">'+r.sitio+'</span>'));
+    semana.forEach(([d,base],di)=>{
+      const td=el('td','c');
+      const hoy = di===1;
+      const n = hoy ? cola.filter(c=>c.eq===r.id&&c.est!=='cancelada').length
+                    : Math.max(0,Math.round(base*(0.4+hsh(r.id+d)*0.9)/2));
+      const cel=el('span','cel'+(n?' on':''),String(n));
+      if(n) cel.style.background='color-mix(in oklab, var(--brand) '+Math.min(100,30+n*16)+'%, var(--surface-2))';
+      if(hoy) cel.style.outline='2px solid var(--brand)';
+      td.append(cel); row.append(td);
+    });
+    body.append(row);
+  });
+  tb.append(body); cal.append(tb);
+  v.append(card('Programación de la semana','Corridas por equipo y día. La columna de hoy (martes) se actualiza con lo que programes arriba.',cal));
+}
+
+const C={};
+function pintaCola(){
+  if(!C.cola) return;
+  C.cola.textContent='';
+  const orden=[...cola].sort((a,b)=>a.a-b.a);
+  const chipEst=c=>{
+    const m={ejecutada:['ok','ejecutada'],'en curso':['warn','en curso'],programada:['','programada'],parcial:['warn','parcial'],cancelada:['crit','cancelada']};
+    const [k,l]=m[c.est]||['','—'];
+    return '<span class="chip '+k+'"><i class="dot"></i>'+l+'</span>';
+  };
+  const w=el('div','scroll'), t=el('table');
+  const th=el('tr');
+  [{t:'Folio'},{t:'Horario'},{t:'Sitio'},{t:'Equipo'},{t:'Rutina'},{t:'Zona'},{t:'m²',n:1},{t:'Estado'},{t:'Acciones'}]
+    .forEach(c=>th.append(el('th',c.n?'n':null,c.t)));
+  t.append(el('thead').appendChild(th).parentNode);
+  const tb=el('tbody');
+  orden.forEach(c=>{
+    const tr=el('tr', c.est==='cancelada'?'alerta':null);
+    if(c.nueva) tr.style.background='var(--brand-soft)';
+    tr.append(el('td',null,'<span class="code">'+c.id+'</span>'));
+    tr.append(el('td',null,'<span class="code">'+hm(c.a)+'–'+hm(c.b)+'</span>'));
+    tr.append(el('td',null,c.sitio));
+    tr.append(el('td',null,'<span class="code">'+c.eq+'</span>'));
+    tr.append(el('td',null,'<span class="code">'+c.rut+'</span>'));
+    tr.append(el('td',null,c.zona));
+    tr.append(el('td','n',F(c.m2)));
+    tr.append(el('td',null,chipEst(c)+(c.motivo?'<br><span style="font-size:11px;color:var(--ink-3)">'+c.motivo+'</span>':'')));
+    const ac=el('td'), box=el('div','acts');
+    if(c.est==='programada'){
+      const l=el('button','btn mini','Lanzar ahora'); l.type='button';
+      l.addEventListener('click',()=>{
+        const a=Math.round(sim.t), dur=c.b-c.a;
+        c.a=a; c.b=a+dur; c.est='en curso'; c.motivo='lanzada a mano a las '+hm(a); c.nueva=false;
+        pintaCola();
+      });
+      const x=el('button','btn mini danger', confirmando===c.id?'¿Cancelar?':'Cancelar'); x.type='button';
+      x.addEventListener('click',()=>{
+        if(confirmando===c.id){ c.est='cancelada'; c.motivo='cancelada por operaciones'; confirmando=null; }
+        else confirmando=c.id;
+        pintaCola();
+      });
+      box.append(l,x);
+    } else if(c.est==='cancelada'){
+      const r=el('button','btn mini ghost','Reprogramar'); r.type='button';
+      r.addEventListener('click',()=>{ c.est='programada'; c.motivo=null; pintaCola(); });
+      box.append(r);
+    } else box.append(el('span','code','—'));
+    ac.append(box); tr.append(ac);
+    tb.append(tr);
+  });
+  t.append(tb); w.append(t);
+  const res=el('p','sub');
+  const n=k=>cola.filter(c=>c.est===k).length;
+  res.textContent=cola.length+' corridas · '+n('ejecutada')+' ejecutadas · '+n('en curso')+' en curso · '+n('programada')+' programadas · '+n('parcial')+' parcial · '+n('cancelada')+' cancelada';
+  res.style.marginTop='10px';
+  C.cola.append(w,res);
+}
+
+/* ============================ navegación ============================ */
+const VIEWS=[
+  {id:'panorama', t:'Panorama', r:viewPanorama},
+  {id:'torre', t:'Torre', r:viewTorre, on:vivoOn, off:vivoOff},
+  {id:'mapa', t:'Mapa vivo', r:viewMapa, on:vivoOn, off:vivoOff},
+  {id:'sitio', t:'Turno', r:viewSitio},
+  {id:'rutinas', t:'Rutinas', r:viewRutinas},
+  {id:'control', t:'Control', r:viewControl},
+  {id:'flota', t:'Flota', r:viewFlota},
+  {id:'supervision', t:'Supervisión', r:viewSupervision}
+];
+const nav=document.getElementById('nav');
+VIEWS.forEach(v=>{const a=el('a',null,v.t); a.href='#'+v.id; a.dataset.id=v.id; nav.append(a);});
+
+const rendered={};
+function show(id){
+  if(!VIEWS.some(v=>v.id===id)) id='panorama';
+  VIEWS.forEach(v=>{
+    const node=document.getElementById('v-'+v.id);
+    const on = v.id===id;
+    if(on && !rendered[v.id]){ v.r(); rendered[v.id]=true; }
+    node.hidden=!on;
+    if(on && v.on) v.on(); else if(!on && v.off) v.off();
+    const link=nav.querySelector('[data-id="'+v.id+'"]');
+    if(on) link.setAttribute('aria-current','page'); else link.removeAttribute('aria-current');
+  });
+  document.getElementById('turno-chip').textContent =
+    (id==='sitio'||id==='mapa'||id==='rutinas') ? 'Auditorio Nacional · mar 24 nov 2026 · 06:00–14:00'
+                 : 'mar 24 nov 2026 · turno 06:00–14:00';
+}
+addEventListener('hashchange',()=>{show(location.hash.replace('#','')); scrollTo({top:0,behavior:'instant'});});
+show(location.hash.replace('#',''));
+
+/* tema */
+const KEY='pulso-tema';
+const btn=document.getElementById('theme');
+try{ const saved=localStorage.getItem(KEY); if(saved) document.documentElement.setAttribute('data-theme',saved); }catch(e){}
+btn.addEventListener('click',()=>{
+  const cur=document.documentElement.getAttribute('data-theme');
+  const oscuroAhora = cur ? cur==='dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+  const next = oscuroAhora?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{ localStorage.setItem(KEY,next); }catch(e){}
+});
+</script>
