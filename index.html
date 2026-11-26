@@ -1826,7 +1826,7 @@ function viewControl(){
     const e=extra[sitio];
     if(a<e.turno[0]||b>e.turno[1]) (pol('pol-turno')?errs:avisos).push('Run '+hm(a)+'–'+hm(b)+' falls outside the site\'s shift ('+hm(e.turno[0])+'–'+hm(e.turno[1])+').');
     const choque=cola.find(c=>c.eq===eq.id&&c.est!=='cancelled'&&a<c.b&&b>c.a);
-    if(choque) (pol('pol-solape')?errs:avisos).push(eq.id+' already has run '+choque.id+' of '+hm(choque.a)+' at '+hm(choque.b)+'.');
+    if(choque) (pol('pol-solape')?errs:avisos).push(eq.id+' already has run '+choque.id+' from '+hm(choque.a)+' to '+hm(choque.b)+'.');
     const p=eq.bat-rut.dur*CONSUMO;
     if(p<35) (pol('pol-bat')?errs:avisos).push('Battery would end at '+Math.max(0,Math.round(p))+'%, below the 35% minimum.');
     const dup=cola.find(c=>c.rut===rut.id&&c.zona===rut.z&&c.est!=='cancelled');
