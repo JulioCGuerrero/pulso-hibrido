@@ -1,7 +1,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Pulso Híbrido</title>
+<title>Hybrid Pulse</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -315,28 +315,28 @@ footer p+p{margin-top:5px}
       <circle cx="9" cy="12" r="6.2" fill="none" stroke="var(--lane-h)" stroke-width="2"></circle>
       <rect x="9.8" y="5.8" width="12.4" height="12.4" rx="3" fill="none" stroke="var(--lane-r)" stroke-width="2"></rect>
     </svg>
-    <div><b>Pulso Híbrido</b><span>Grupo Batia · operación personal + robots</span></div>
+    <div><b>Hybrid Pulse</b><span>Grupo Batia · staff + robot operations</span></div>
   </div>
-  <span class="demo">Datos demo</span>
-  <span class="turno" id="turno-chip">mar 24 nov 2026 · turno 06:00–14:00</span>
-  <button class="tbtn" id="theme" type="button">Tema</button>
+  <span class="demo">Demo data</span>
+  <span class="turno" id="turno-chip">Tue Nov 24, 2026 · shift 06:00–14:00</span>
+  <button class="tbtn" id="theme" type="button">Theme</button>
 </div></div>
 
 <nav class="nav"><div class="wrap" id="nav"></div></nav>
 
 <main><div class="wrap">
   <section class="view" id="v-panorama"></section>
-  <section class="view" id="v-torre" hidden></section>
-  <section class="view" id="v-mapa" hidden></section>
-  <section class="view" id="v-sitio" hidden></section>
-  <section class="view" id="v-rutinas" hidden></section>
+  <section class="view" id="v-tower" hidden></section>
+  <section class="view" id="v-map" hidden></section>
+  <section class="view" id="v-shift" hidden></section>
+  <section class="view" id="v-routines" hidden></section>
   <section class="view" id="v-control" hidden></section>
-  <section class="view" id="v-flota" hidden></section>
+  <section class="view" id="v-fleet" hidden></section>
   <section class="view" id="v-supervision" hidden></section>
 
   <footer>
-    <p><b>Prototipo con datos de demostración.</b> Las cifras, nombres de personal y sitios de esta página son ejemplos construidos para mostrar la forma de la plataforma. No son registros de clientes ni de personal de Grupo Batia.</p>
-    <p><b>Desarrollo interno de Grupo Batia.</b> Los carriles de personal, rutinas y supervisión se arman con lo que ya existe en SINGA, el biométrico, AsistIA, CRM Supervisiones y Panel Pulso. El módulo de robótica es parte de la misma plataforma: registra cada corrida con el mismo modelo de datos que una rutina de personal.</p>
+    <p><b>Prototype with demonstration data.</b> The figures, staff names and sites on this page are examples built to show the shape of the platform. They are not client or personnel records of Grupo Batia.</p>
+    <p><b>Internal development by Grupo Batia.</b> The staff, routine and inspection lanes are built from what already exists in SINGA, the biometric reader, AsistIA, CRM Supervisiones and Panel Pulso. The robotics module is part of the same platform: it records every run with the same data model as a staff routine.</p>
   </footer>
 </div></main>
 
@@ -344,110 +344,110 @@ footer p+p{margin-top:5px}
 
 <script>
 /* ============================ datos demo ============================ */
-const F = n => n.toLocaleString('es-MX');
+const F = n => n.toLocaleString('en-US');
 const hm = m => String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
 
 const grupo = {
   tiles:[
-    {k:'Sitios activos', v:'8', n:'5 con robot · 3 candidatos', src:'SINGA · catálogo de inmuebles'},
-    {k:'Cobertura del plan', v:'94.1%', n:'meta 96% · −1.9 pts vs semana pasada', src:'Panel Pulso'},
-    {k:'Asistencia del turno', v:'92.9%', n:'13 de 14 asignados · 1 cobertura', src:'Biométrico + SINGA'},
-    {k:'m² robotizados hoy', v:'15,940', n:'6.2% de la superficie atendida', src:'Módulo de robótica'},
-    {k:'Supervisiones hoy', v:'11', n:'1 crítica · 9 con evidencia de IA', src:'CRM Supervisiones'},
-    {k:'Alertas abiertas', v:'3', n:'1 con SLA vencido', src:'Matriz de escalamiento'}
+    {k:'Active sites', v:'8', n:'5 with robots · 3 candidates', src:'SINGA · property catalog'},
+    {k:'Plan coverage', v:'94.1%', n:'target 96% · −1.9 pts vs last week', src:'Panel Pulso'},
+    {k:'Shift attendance', v:'92.9%', n:'13 of 14 assigned · 1 fill-in', src:'Biometrics + SINGA'},
+    {k:'Robot-covered m² today', v:'15,940', n:'6.2% of the area serviced', src:'Robotics module'},
+    {k:'Inspections today', v:'11', n:'1 critical · 9 with AI evidence', src:'CRM Supervisiones'},
+    {k:'Open alerts', v:'3', n:'1 past SLA', src:'Escalation matrix'}
   ],
   sitios:[
-    {s:'Auditorio Nacional', l:'Limpieza', g:'CDMX', m2:42000, rb:3, cob:96.6, asis:92.9, cal:7.4, est:'atencion', foco:true},
-    {s:'Torre Corporativa Reforma', l:'Limpieza', g:'CDMX', m2:28500, rb:1, cob:98.1, asis:100, cal:9.1, est:'ok'},
-    {s:'Centro Comercial Sur', l:'Limpieza', g:'CDMX', m2:61000, rb:2, cob:93.4, asis:95.2, cal:8.2, est:'ok'},
-    {s:'Terminal Aérea T2', l:'Limpieza', g:'CDMX', m2:54200, rb:1, cob:90.7, asis:88.0, cal:6.9, est:'critico'},
-    {s:'Corporativo Santa Fe', l:'Limpieza', g:'CDMX', m2:19800, rb:1, cob:97.6, asis:100, cal:8.8, est:'ok'},
-    {s:'Hospital Metropolitano', l:'Limpieza', g:'Edo. Méx.', m2:23400, rb:0, cob:95.0, asis:96.4, cal:8.5, est:'ok'},
-    {s:'Planta Industrial Querétaro', l:'Mantenimiento', g:'Querétaro', m2:31000, rb:0, cob:92.2, asis:97.1, cal:8.0, est:'ok'},
-    {s:'CEDIS Tultitlán', l:'Limpieza', g:'Edo. Méx.', m2:38700, rb:0, cob:89.5, asis:91.3, cal:7.1, est:'atencion'}
+    {s:'Auditorio Nacional', l:'Cleaning', g:'CDMX', m2:42000, rb:3, cob:96.6, asis:92.9, cal:7.4, est:'atencion', foco:true},
+    {s:'Torre Corporativa Reforma', l:'Cleaning', g:'CDMX', m2:28500, rb:1, cob:98.1, asis:100, cal:9.1, est:'ok'},
+    {s:'Centro Comercial Sur', l:'Cleaning', g:'CDMX', m2:61000, rb:2, cob:93.4, asis:95.2, cal:8.2, est:'ok'},
+    {s:'Terminal Aérea T2', l:'Cleaning', g:'CDMX', m2:54200, rb:1, cob:90.7, asis:88.0, cal:6.9, est:'critico'},
+    {s:'Corporativo Santa Fe', l:'Cleaning', g:'CDMX', m2:19800, rb:1, cob:97.6, asis:100, cal:8.8, est:'ok'},
+    {s:'Hospital Metropolitano', l:'Cleaning', g:'Mexico State', m2:23400, rb:0, cob:95.0, asis:96.4, cal:8.5, est:'ok'},
+    {s:'Planta Industrial Querétaro', l:'Maintenance', g:'Querétaro', m2:31000, rb:0, cob:92.2, asis:97.1, cal:8.0, est:'ok'},
+    {s:'CEDIS Tultitlán', l:'Cleaning', g:'Mexico State', m2:38700, rb:0, cob:89.5, asis:91.3, cal:7.1, est:'atencion'}
   ],
   lineas:[
-    {l:'Limpieza', h:198600, r:15940},
-    {l:'Mantenimiento', h:31000, r:0},
-    {l:'Seguridad (rondines)', h:12400, r:0}
+    {l:'Cleaning', h:198600, r:15940},
+    {l:'Maintenance', h:31000, r:0},
+    {l:'Security (patrols)', h:12400, r:0}
   ]
 };
 
 const sitio = {
   nombre:'Auditorio Nacional',
-  contexto:'Evento la noche anterior · aforo 9,740 · cierre de sala 23:48. Turno de recuperación 06:00–14:00.',
+  contexto:'Event the night before · attendance 9,740 · hall cleared 23:48. Recovery shift 06:00–14:00.',
   t0:360, t1:840,
   filas:[
-    {lane:'h', g:'Personal de limpieza', nom:'M. Ortega', meta:'Vestíbulo', mov:'A',
-     blocks:[{a:352,b:843,tip:'Entrada 05:52 · salida 14:03 · movimiento A',lab:'Vestíbulo'}]},
-    {lane:'h', nom:'J. Rangel', meta:'Luneta', mov:'A',
-     blocks:[{a:358,b:840,tip:'Entrada 05:58 · salida 14:00 · movimiento A',lab:'Luneta'}]},
-    {lane:'h', nom:'L. Cruz', meta:'Sanitarios Norte', mov:'A · retardo',
-     blocks:[{a:381,b:842,tip:'Entrada 06:21 · retardo de 21 min · movimiento A',lab:'Sanitarios Norte'}]},
-    {lane:'h', nom:'A. Mendoza', meta:'Sanitarios Sur', mov:'F',
-     falta:'Falta (F) — plaza sin cubrir hasta las 06:40'},
-    {lane:'h', nom:'R. Salinas', meta:'Cobertura Sanit. Sur', mov:'A · cobertura',
-     blocks:[{a:400,b:845,tip:'Entrada 06:40 · cobertura de la plaza de A. Mendoza',lab:'Cobertura'}]},
-    {lane:'h', nom:'P. Herrera', meta:'Pasillos perimetrales', mov:'A',
-     blocks:[{a:355,b:838,tip:'Entrada 05:55 · salida 13:58 · movimiento A',lab:'Pasillos'}]},
-    {lane:'h', nom:'D. Nava', meta:'Explanada', mov:'A',
-     blocks:[{a:365,b:841,tip:'Entrada 06:05 · salida 14:01 · movimiento A',lab:'Explanada'}]},
+    {lane:'h', g:'Cleaning staff', nom:'M. Ortega', meta:'Lobby', mov:'P',
+     blocks:[{a:352,b:843,tip:'Clock-in 05:52 · clock-out 14:03 · status P',lab:'Lobby'}]},
+    {lane:'h', nom:'J. Rangel', meta:'Orchestra', mov:'P',
+     blocks:[{a:358,b:840,tip:'Clock-in 05:58 · clock-out 14:00 · status P',lab:'Orchestra'}]},
+    {lane:'h', nom:'L. Cruz', meta:'North Restrooms', mov:'P · late',
+     blocks:[{a:381,b:842,tip:'Clock-in 06:21 · 21 min late · status P',lab:'North Restrooms'}]},
+    {lane:'h', nom:'A. Mendoza', meta:'South Restrooms', mov:'A',
+     falta:'Absence (A) — post uncovered until 06:40'},
+    {lane:'h', nom:'R. Salinas', meta:'Fill-in South Restrooms', mov:'P · fill-in',
+     blocks:[{a:400,b:845,tip:'Clock-in 06:40 · covering A. Mendoza\'s post',lab:'Fill-in'}]},
+    {lane:'h', nom:'P. Herrera', meta:'Perimeter corridors', mov:'P',
+     blocks:[{a:355,b:838,tip:'Clock-in 05:55 · clock-out 13:58 · status P',lab:'Corridors'}]},
+    {lane:'h', nom:'D. Nava', meta:'Esplanade', mov:'P',
+     blocks:[{a:365,b:841,tip:'Clock-in 06:05 · clock-out 14:01 · status P',lab:'Esplanade'}]},
 
-    {lane:'r', g:'Robots de limpieza', nom:'WHZ-0412', meta:'Whiz i · Luneta, 1er piso',
+    {lane:'r', g:'Cleaning robots', nom:'WHZ-0412', meta:'Whiz i · Orchestra, Mezzanine',
      blocks:[
-       {a:390,b:485,tip:'Corrida 1 · Luneta · 1,640 m² · 96% del plan',lab:'Luneta 1,640 m²'},
-       {a:550,b:640,tip:'Corrida 2 · Primer piso · 200 m² · interrumpida al 38% por obstáculo',lab:'1er piso 200 m²',kind:'warn'}
+       {a:390,b:485,tip:'Run 1 · Orchestra · 1,640 m² · 96% of plan',lab:'Orchestra 1,640 m²'},
+       {a:550,b:640,tip:'Run 2 · Mezzanine · 200 m² · stopped at 38% by an obstacle',lab:'Mezzanine 200 m²',kind:'warn'}
      ],
-     marks:[{t:592,tip:'09:52 · error: obstáculo persistente (tarima de evento) — la corrida se detuvo al 38%',kind:'warn'}]},
-    {lane:'r', nom:'WHZ-0533', meta:'Whiz i · Vestíbulo, Balcón',
+     marks:[{t:592,tip:'09:52 · error: persistent obstacle (event staging deck) — the run stopped at 38%',kind:'warn'}]},
+    {lane:'r', nom:'WHZ-0533', meta:'Whiz i · Lobby, Balcony',
      blocks:[
-       {a:375,b:470,tip:'Corrida 1 · Vestíbulo · 1,180 m² · 100% del plan',lab:'Vestíbulo 1,180 m²'},
-       {a:500,b:595,tip:'Corrida 2 · Balcón · 620 m² · 100% del plan',lab:'Balcón 620 m²'},
-       {a:630,b:695,tip:'Corrida 3 · Vestíbulo (repaso) · 100% del plan',lab:'Repaso'}
+       {a:375,b:470,tip:'Run 1 · Lobby · 1,180 m² · 100% of plan',lab:'Lobby 1,180 m²'},
+       {a:500,b:595,tip:'Run 2 · Balcony · 620 m² · 100% of plan',lab:'Balcony 620 m²'},
+       {a:630,b:695,tip:'Run 3 · Lobby (touch-up) · 100% of plan',lab:'Touch-up'}
      ]},
-    {lane:'r', nom:'SCR-118', meta:'Fregadora autónoma · fuera de servicio',
-     falta:'Fuera de servicio desde el 18 nov — refacción en espera'},
+    {lane:'r', nom:'SCR-118', meta:'Autonomous scrubber · out of service',
+     falta:'Out of service since Nov 18 — awaiting a part'},
 
-    {lane:'s', g:'Supervisión', nom:'S. Félix', meta:'Supervisor de turno',
+    {lane:'s', g:'Inspections', nom:'S. Félix', meta:'Shift supervisor',
      blocks:[
-       {a:390,b:430,tip:'Recorrido de apertura · 06:30–07:10',lab:'Recorrido'},
-       {a:720,b:755,tip:'Recorrido de cierre · 12:00–12:35',lab:'Recorrido'}
+       {a:390,b:430,tip:'Opening walk · 06:30–07:10',lab:'Walk'},
+       {a:720,b:755,tip:'Closing walk · 12:00–12:35',lab:'Walk'}
      ],
-     marks:[{t:555,tip:'09:15 · supervisión formal · calificación 7.4 · GPS confirmado · 6 fotos',kind:'sup'}]},
+     marks:[{t:555,tip:'09:15 · formal inspection · score 7.4 · GPS confirmed · 6 photos',kind:'sup'}]},
 
-    {lane:'x', g:'Huecos de cobertura', nom:'Sin atender', meta:'ni persona, ni robot',
+    {lane:'x', g:'Coverage gaps', nom:'Not serviced', meta:'no person, no robot',
      blocks:[
-       {a:360,b:400,tip:'Sanitarios Ala Sur · 40 min sin persona asignada y zona donde el robot no entra',lab:'Sanit. Sur 06:00–06:40',kind:'crit'},
-       {a:360,b:840,tip:'Estacionamiento P1 · 7,400 m² sin personal, sin robot y sin supervisión en todo el turno',lab:'Estacionamiento P1 · todo el turno',kind:'crit'}
+       {a:360,b:400,tip:'South Wing Restrooms · 40 min with nobody assigned, and a zone the robot does not enter',lab:'South Restrooms 06:00–06:40',kind:'crit'},
+       {a:360,b:840,tip:'Parking P1 · 7,400 m² with no staff, no robot and no inspection for the entire shift',lab:'Parking P1 · entire shift',kind:'crit'}
      ]}
   ],
   zonas:[
-    {z:'Vestíbulo principal', m2:3200, min:489, rm2:1180, sup:'sí', cal:8.5},
-    {z:'Luneta', m2:5400, min:482, rm2:1640, sup:'sí', cal:7.8},
-    {z:'Primer piso', m2:4100, min:0, rm2:200, sup:'no', cal:null},
-    {z:'Balcón', m2:2800, min:0, rm2:620, sup:'no', cal:null},
-    {z:'Sanitarios Ala Norte', m2:420, min:461, rm2:0, sup:'sí', cal:8.0},
-    {z:'Sanitarios Ala Sur', m2:420, min:445, rm2:0, sup:'sí', cal:4.2, alerta:true},
-    {z:'Pasillos perimetrales', m2:6900, min:483, rm2:0, sup:'sí', cal:8.1},
-    {z:'Explanada', m2:9500, min:476, rm2:0, sup:'no', cal:null},
-    {z:'Estacionamiento P1', m2:7400, min:0, rm2:0, sup:'no', cal:null, alerta:true}
+    {z:'Main Lobby', m2:3200, min:489, rm2:1180, sup:'yes', cal:8.5},
+    {z:'Orchestra', m2:5400, min:482, rm2:1640, sup:'yes', cal:7.8},
+    {z:'Mezzanine', m2:4100, min:0, rm2:200, sup:'no', cal:null},
+    {z:'Balcony', m2:2800, min:0, rm2:620, sup:'no', cal:null},
+    {z:'North Wing Restrooms', m2:420, min:461, rm2:0, sup:'yes', cal:8.0},
+    {z:'South Wing Restrooms', m2:420, min:445, rm2:0, sup:'yes', cal:4.2, alerta:true},
+    {z:'Perimeter corridors', m2:6900, min:483, rm2:0, sup:'yes', cal:8.1},
+    {z:'Esplanade', m2:9500, min:476, rm2:0, sup:'no', cal:null},
+    {z:'Parking P1', m2:7400, min:0, rm2:0, sup:'no', cal:null, alerta:true}
   ],
   hallazgos:[
-    {t:'La zona peor calificada es la que estuvo 40 minutos sin nadie',
-     p:'A. Mendoza registró falta (F) en Sanitarios Ala Sur. La cobertura de R. Salinas entró 06:40. Es una zona donde el robot no opera. La supervisión de las 09:15 calificó esa zona 4.2 por falta de reposición de consumibles.',
-     w:'Antes, la falta vivía en SINGA, la calificación en CRM Supervisiones y la corrida del robot en otra parte. Aquí la cadena completa se lee de un jalón.'},
-    {t:'El robot cumplió su plan en dos zonas que nadie revisó',
-     p:'WHZ-0533 cerró Balcón al 100% y WHZ-0412 entró a Primer piso. Ninguna de las dos zonas recibió supervisión en el turno, así que el resultado no tiene verificación independiente.',
-     w:'Medido solo por telemetría, el robot cumplió y las dos zonas salen en verde. La calificación del supervisor es el único dato que dice si el resultado sirvió.'},
-    {t:'7,400 m² no estaban en el plan del día',
-     p:'Estacionamiento P1 cerró el turno sin personal asignado, sin corrida de robot y sin supervisión, porque la rutina RUT-11 no entró al programa. No aparece como incumplimiento: aparece como ausencia de plan.',
-     w:'Es el hueco más caro y el más fácil de perder de vista, porque ningún sistema reporta lo que nunca se programó.'}
+    {t:'The worst-scored zone is the one left with nobody for 40 minutes',
+     p:'A. Mendoza was recorded absent (A) in South Wing Restrooms. R. Salinas came in at 06:40 as the fill-in. The robot does not operate in that zone. The 09:15 inspection scored it 4.2 for consumables that were never restocked.',
+     w:'The absence used to live in SINGA, the score in CRM Supervisiones and the robot run somewhere else. Here the whole chain reads in one go.'},
+    {t:'The robot hit its plan in two zones nobody checked',
+     p:'WHZ-0533 closed Balcony at 100% and WHZ-0412 went into the Mezzanine. Neither zone was inspected during the shift, so the result has no independent verification.',
+     w:'Measured by telemetry alone, the robot complied and both zones come out green. The supervisor\'s score is the only figure that says whether the result was any good.'},
+    {t:'7,400 m² were never in the day\'s plan',
+     p:'Parking P1 closed the shift with no staff assigned, no robot run and no inspection, because routine RUT-11 never made it into the schedule. It does not show up as a failure: it shows up as an absence of plan.',
+     w:'It is the most expensive gap and the easiest to lose sight of, because no system reports what was never scheduled.'}
   ],
   evidencia:[
-    {z:'Sanitarios Ala Sur', h:'Sin reposición de consumibles', ia:'0 de 4 dispensadores con carga detectada', mod:'Visión · consumibles', c:0.88, est:'crit'},
-    {z:'Área de alimentos', h:'2 personas sin cofia', ia:'2 detecciones sin cubrecabeza', mod:'Visión · uniforme', c:0.91, est:'warn'},
-    {z:'Luneta', h:'Conforme', ia:'0 residuos detectados en 18 fotos', mod:'Visión · residuos', c:0.94, est:'ok'},
-    {z:'Vestíbulo principal', h:'Conforme', ia:'0 residuos detectados en 11 fotos', mod:'Visión · residuos', c:0.93, est:'ok'}
+    {z:'South Wing Restrooms', h:'No consumables restocked', ia:'0 of 4 dispensers detected loaded', mod:'Vision · consumables', c:0.88, est:'crit'},
+    {z:'Food area', h:'2 people without hair covers', ia:'2 detections with no head covering', mod:'Vision · uniform', c:0.91, est:'warn'},
+    {z:'Orchestra', h:'Compliant', ia:'0 waste items detected in 18 photos', mod:'Vision · waste', c:0.94, est:'ok'},
+    {z:'Main Lobby', h:'Compliant', ia:'0 waste items detected in 11 photos', mod:'Vision · waste', c:0.93, est:'ok'}
   ]
 };
 
@@ -458,42 +458,42 @@ const flota = {
     {id:'WHZ-0210', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Torre Corporativa Reforma', est:'operando', plan:100, m2:2260, bat:48, err:0},
     {id:'WHZ-0344', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Centro Comercial Sur', est:'operando', plan:97, m2:3120, bat:33, err:0},
     {id:'WHZ-0345', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Centro Comercial Sur', est:'operando', plan:88, m2:2740, bat:19, err:2},
-    {id:'SCR-118', mod:'Fregadora autónoma', marca:'Otro proveedor', sitio:'Auditorio Nacional', est:'fuera', plan:0, m2:0, bat:0, err:0},
-    {id:'SCR-204', mod:'Fregadora autónoma', marca:'Otro proveedor', sitio:'Terminal Aérea T2', est:'operando', plan:95, m2:4180, bat:52, err:1},
+    {id:'SCR-118', mod:'Autonomous scrubber', marca:'Other vendor', sitio:'Auditorio Nacional', est:'fuera', plan:0, m2:0, bat:0, err:0},
+    {id:'SCR-204', mod:'Autonomous scrubber', marca:'Other vendor', sitio:'Terminal Aérea T2', est:'operando', plan:95, m2:4180, bat:52, err:1},
     {id:'WHZ-0501', mod:'Whiz i', marca:'SoftBank Robotics', sitio:'Corporativo Santa Fe', est:'mantenimiento', plan:0, m2:0, bat:100, err:0}
   ],
   campos:[
-    {c:'robot_id', d:'Identificador del equipo en el inventario del grupo', req:'obligatorio'},
-    {c:'inmueble_id', d:'Sitio donde corrió — la misma clave que usa SINGA', req:'obligatorio'},
-    {c:'zona', d:'Zona del plano ejecutada dentro del sitio', req:'obligatorio'},
-    {c:'rutina_id', d:'Rutina del catálogo que esta corrida ejecuta', req:'obligatorio'},
-    {c:'inicio / fin', d:'Marca de tiempo del arranque y del cierre', req:'obligatorio'},
-    {c:'m2_cubiertos', d:'Superficie efectivamente cubierta en la corrida', req:'obligatorio'},
-    {c:'avance_plan_pct', d:'Porcentaje del plan de la zona ejecutado', req:'obligatorio'},
-    {c:'bateria_fin_pct', d:'Batería al cierre de la corrida', req:'deseable'},
-    {c:'errores[]', d:'Código, hora y descripción de cada interrupción', req:'deseable'},
-    {c:'operador_id', d:'Quién lanzó la corrida — el mismo empleado de SINGA', req:'deseable'}
+    {c:'robot_id', d:'Unit identifier in the group inventory', req:'obligatorio'},
+    {c:'site_id', d:'Site where it ran — the same key SINGA uses', req:'obligatorio'},
+    {c:'zone', d:'Floor-plan zone covered inside the site', req:'obligatorio'},
+    {c:'routine_id', d:'Catalog routine this run performs', req:'obligatorio'},
+    {c:'start / end', d:'Timestamp of start and close', req:'obligatorio'},
+    {c:'m2_covered', d:'Area actually covered during the run', req:'obligatorio'},
+    {c:'plan_pct', d:'Percentage of the zone\'s plan completed', req:'obligatorio'},
+    {c:'battery_end_pct', d:'Battery at the close of the run', req:'deseable'},
+    {c:'errors[]', d:'Code, time and description of each interruption', req:'deseable'},
+    {c:'operator_id', d:'Who launched the run — the same SINGA employee', req:'deseable'}
   ]
 };
 
 const supervisiones = [
-  {h:'06:48', sitio:'Torre Corporativa Reforma', sup:'C. Barragán', cal:9.1, gps:'sí', fotos:8, ia:'conforme', est:'ok'},
-  {h:'07:20', sitio:'Corporativo Santa Fe', sup:'M. Lira', cal:8.8, gps:'sí', fotos:6, ia:'conforme', est:'ok'},
-  {h:'08:05', sitio:'Hospital Metropolitano', sup:'E. Quintero', cal:8.5, gps:'sí', fotos:12, ia:'conforme', est:'ok'},
-  {h:'08:40', sitio:'Centro Comercial Sur', sup:'V. Alcántara', cal:8.2, gps:'sí', fotos:9, ia:'1 hallazgo', est:'ok'},
-  {h:'09:15', sitio:'Auditorio Nacional', sup:'S. Félix', cal:7.4, gps:'sí', fotos:6, ia:'2 hallazgos', est:'warn', foco:true},
-  {h:'09:50', sitio:'Planta Industrial Querétaro', sup:'R. Ibarra', cal:8.0, gps:'sí', fotos:7, ia:'conforme', est:'ok'},
-  {h:'10:30', sitio:'CEDIS Tultitlán', sup:'G. Peralta', cal:7.1, gps:'sí', fotos:5, ia:'1 hallazgo', est:'warn'},
-  {h:'11:05', sitio:'Terminal Aérea T2', sup:'A. Durán', cal:6.2, gps:'sí', fotos:14, ia:'4 hallazgos', est:'crit'},
-  {h:'11:45', sitio:'Centro Comercial Sur', sup:'V. Alcántara', cal:8.6, gps:'sí', fotos:7, ia:'conforme', est:'ok'},
-  {h:'12:30', sitio:'Terminal Aérea T2', sup:'A. Durán', cal:7.6, gps:'no', fotos:4, ia:'sin evidencia', est:'warn'},
-  {h:'13:10', sitio:'Hospital Metropolitano', sup:'E. Quintero', cal:8.9, gps:'sí', fotos:10, ia:'conforme', est:'ok'}
+  {h:'06:48', sitio:'Torre Corporativa Reforma', sup:'C. Barragán', cal:9.1, gps:'yes', fotos:8, ia:'compliant', est:'ok'},
+  {h:'07:20', sitio:'Corporativo Santa Fe', sup:'M. Lira', cal:8.8, gps:'yes', fotos:6, ia:'compliant', est:'ok'},
+  {h:'08:05', sitio:'Hospital Metropolitano', sup:'E. Quintero', cal:8.5, gps:'yes', fotos:12, ia:'compliant', est:'ok'},
+  {h:'08:40', sitio:'Centro Comercial Sur', sup:'V. Alcántara', cal:8.2, gps:'yes', fotos:9, ia:'1 finding', est:'ok'},
+  {h:'09:15', sitio:'Auditorio Nacional', sup:'S. Félix', cal:7.4, gps:'yes', fotos:6, ia:'2 findings', est:'warn', foco:true},
+  {h:'09:50', sitio:'Planta Industrial Querétaro', sup:'R. Ibarra', cal:8.0, gps:'yes', fotos:7, ia:'compliant', est:'ok'},
+  {h:'10:30', sitio:'CEDIS Tultitlán', sup:'G. Peralta', cal:7.1, gps:'yes', fotos:5, ia:'1 finding', est:'warn'},
+  {h:'11:05', sitio:'Terminal Aérea T2', sup:'A. Durán', cal:6.2, gps:'yes', fotos:14, ia:'4 findings', est:'crit'},
+  {h:'11:45', sitio:'Centro Comercial Sur', sup:'V. Alcántara', cal:8.6, gps:'yes', fotos:7, ia:'compliant', est:'ok'},
+  {h:'12:30', sitio:'Terminal Aérea T2', sup:'A. Durán', cal:7.6, gps:'no', fotos:4, ia:'no evidence', est:'warn'},
+  {h:'13:10', sitio:'Hospital Metropolitano', sup:'E. Quintero', cal:8.9, gps:'yes', fotos:10, ia:'compliant', est:'ok'}
 ];
 
 const escalamiento = [
-  {alerta:'Terminal Aérea T2 · calificación 6.2 en sala de última espera', resp:'Jefatura de Operaciones Aeropuerto', sla:'4 h', trans:'5 h 12 min', est:'crit'},
-  {alerta:'Auditorio Nacional · consumibles en Sanitarios Ala Sur', resp:'Coordinación de sitio', sla:'8 h', trans:'3 h 05 min', est:'warn'},
-  {alerta:'Centro Comercial Sur · WHZ-0345 con 2 interrupciones', resp:'Coordinación de robótica', sla:'24 h', trans:'1 h 40 min', est:'ok'}
+  {alerta:'Terminal Aérea T2 · score 6.2 in the final boarding lounge', resp:'Airport Operations Management', sla:'4 h', trans:'5 h 12 min', est:'crit'},
+  {alerta:'Auditorio Nacional · consumables in South Wing Restrooms', resp:'Site coordination', sla:'8 h', trans:'3 h 05 min', est:'warn'},
+  {alerta:'Centro Comercial Sur · WHZ-0345 with 2 interruptions', resp:'Robotics coordination', sla:'24 h', trans:'1 h 40 min', est:'ok'}
 ];
 
 
@@ -501,17 +501,17 @@ const escalamiento = [
 /* Plano esquemático del Auditorio Nacional. No es un plano arquitectónico:
    las zonas guardan la relación de superficie y vecindad, no la geometría real. */
 const Z = {
-  explanada:   {x:40, y:24,  w:920, h:74,  n:'Explanada',            m2:9500, plan:9500},
-  sanNorte:    {x:40, y:108, w:120, h:78,  n:'Sanitarios Norte',     m2:420,  plan:420},
-  vestibulo:   {x:172,y:108, w:620, h:78,  n:'Vestíbulo principal',  m2:3200, plan:3200},
-  alimentos:   {x:804,y:108, w:156, h:78,  n:'Área de alimentos',    m2:640,  plan:640},
-  pasilloOeste:{x:40, y:198, w:120, h:208, n:'Pasillo Oeste',        m2:3200, plan:3200},
-  luneta:      {x:172,y:198, w:620, h:208, n:'Luneta',               m2:5400, plan:5400},
-  pasilloEste: {x:804,y:198, w:156, h:208, n:'Pasillo Este',         m2:3700, plan:3700},
-  sanSur:      {x:40, y:418, w:120, h:74,  n:'Sanitarios Sur',       m2:420,  plan:420},
-  primerPiso:  {x:172,y:418, w:400, h:74,  n:'Primer piso',          m2:4100, plan:520},
-  balcon:      {x:584,y:418, w:376, h:74,  n:'Balcón',               m2:2800, plan:620},
-  estac:       {x:40, y:504, w:920, h:88,  n:'Estacionamiento P1',   m2:7400, plan:0, fuera:'fuera del plan del día'}
+  explanada:   {x:40, y:24,  w:920, h:74,  n:'Esplanade',            m2:9500, plan:9500},
+  sanNorte:    {x:40, y:108, w:120, h:78,  n:'North Restrooms',     m2:420,  plan:420},
+  vestibulo:   {x:172,y:108, w:620, h:78,  n:'Main Lobby',  m2:3200, plan:3200},
+  alimentos:   {x:804,y:108, w:156, h:78,  n:'Food area',    m2:640,  plan:640},
+  pasilloOeste:{x:40, y:198, w:120, h:208, n:'West Corridor',        m2:3200, plan:3200},
+  luneta:      {x:172,y:198, w:620, h:208, n:'Orchestra',               m2:5400, plan:5400},
+  pasilloEste: {x:804,y:198, w:156, h:208, n:'East Corridor',         m2:3700, plan:3700},
+  sanSur:      {x:40, y:418, w:120, h:74,  n:'South Restrooms',       m2:420,  plan:420},
+  primerPiso:  {x:172,y:418, w:400, h:74,  n:'Mezzanine',          m2:4100, plan:520},
+  balcon:      {x:584,y:418, w:376, h:74,  n:'Balcony',               m2:2800, plan:620},
+  estac:       {x:40, y:504, w:920, h:88,  n:'Parking P1',   m2:7400, plan:0, fuera:'outside the day\'s plan'}
 };
 const PLAN_TOTAL = Object.values(Z).reduce((s,z)=>s+z.plan,0);
 const cen = k => [Z[k].x+Z[k].w/2, Z[k].y+Z[k].h/2];
@@ -562,7 +562,7 @@ function cubierto(c,t){
 const robots=[
   {id:'WHZ-0412', mod:'Whiz i'},
   {id:'WHZ-0533', mod:'Whiz i'},
-  {id:'SCR-118',  mod:'Fregadora autónoma', fuera:'Fuera de servicio desde el 18 nov', pos:[160,560]}
+  {id:'SCR-118',  mod:'Autonomous scrubber', fuera:'Out of service since Nov 18', pos:[160,560]}
 ];
 function estadoRobot(id,t){
   const cs=corridas.filter(c=>c.rid===id);
@@ -579,19 +579,19 @@ function estadoRobot(id,t){
 
 const personal=[
   {n:'M. Ortega',  z:'vestibulo',   a:352, b:843, ph:0.2, cov:{vestibulo:1.00},
-   rut:'RUT-08', mov:'A'},
+   rut:'RUT-08', mov:'P'},
   {n:'J. Rangel',  z:'luneta',      a:358, b:840, ph:1.3, cov:{luneta:0.72},
-   rut:'RUT-06', mov:'A'},
+   rut:'RUT-06', mov:'P'},
   {n:'L. Cruz',    z:'sanNorte',    a:381, b:842, ph:2.1, cov:{sanNorte:1.00},
-   rut:'RUT-03', mov:'A', nota:'retardo 21 min'},
+   rut:'RUT-03', mov:'P', nota:'21 min late'},
   {n:'R. Salinas', z:'sanSur',      a:400, b:845, ph:0.7, cov:{sanSur:0.94},
-   rut:'RUT-03', mov:'A', nota:'cobertura'},
+   rut:'RUT-03', mov:'P', nota:'cobertura'},
   {n:'P. Herrera', z:'pasilloEste', a:355, b:838, ph:3.0, cov:{pasilloOeste:1.00, pasilloEste:1.00, alimentos:0.85},
-   rut:'RUT-10', mov:'A'},
+   rut:'RUT-10', mov:'P'},
   {n:'D. Nava',    z:'explanada',   a:365, b:841, ph:1.8, cov:{explanada:0.95},
-   rut:'RUT-05', mov:'A'}
+   rut:'RUT-05', mov:'P'}
 ];
-const ausente={n:'A. Mendoza', z:'sanSur', rut:'RUT-03', mov:'F', nota:'falta — plaza cubierta 06:40'};
+const ausente={n:'A. Mendoza', z:'sanSur', rut:'RUT-03', mov:'A', nota:'absent — post covered 06:40'};
 function posPersona(p,t){
   const z=Z[p.z], cx=z.x+z.w/2, cy=z.y+z.h/2;
   return [cx+(z.w/2-26)*Math.sin(t*0.11+p.ph), cy+(z.h/2-16)*Math.sin(t*0.067+p.ph*2.7)];
@@ -614,11 +614,11 @@ function posSup(t){
   return cen('vestibulo');
 }
 function supEstado(t){
-  if(t>=555&&t<570) return {txt:'Levantando supervisión formal', z:'Sanitarios Ala Sur', k:'crit'};
-  if(t>=390&&t<430) return {txt:'Recorrido de apertura', z:'—', k:'ok'};
-  if(t>=718&&t<755) return {txt:'Recorrido de cierre', z:'—', k:'ok'};
-  if(t<390) return {txt:'Previo al recorrido', z:'—', k:''};
-  return {txt:'En caseta de supervisión', z:'Vestíbulo', k:''};
+  if(t>=555&&t<570) return {txt:'Logging a formal inspection', z:'South Wing Restrooms', k:'crit'};
+  if(t>=390&&t<430) return {txt:'Opening walk', z:'—', k:'ok'};
+  if(t>=718&&t<755) return {txt:'Closing walk', z:'—', k:'ok'};
+  if(t<390) return {txt:'Before the walk', z:'—', k:''};
+  return {txt:'In the supervisor\'s booth', z:'Lobby', k:''};
 }
 
 /* cobertura de una zona a la hora t, contra el plan del día */
@@ -644,81 +644,81 @@ function covSitio(t){
 }
 
 const eventos=[
-  {t:352,k:'h',  x:'M. Ortega marca entrada en el biométrico — Vestíbulo principal'},
-  {t:355,k:'h',  x:'P. Herrera marca entrada — ronda de pasillos'},
-  {t:358,k:'h',  x:'J. Rangel marca entrada — Luneta'},
-  {t:360,k:'crit',x:'Sanitarios Ala Sur abre el turno sin persona asignada'},
-  {t:365,k:'h',  x:'D. Nava marca entrada — Explanada'},
-  {t:375,k:'r',  x:'WHZ-0533 lanza RUT-04 · fregado autónomo de Vestíbulo'},
-  {t:381,k:'warn',x:'L. Cruz entra con 21 min de retardo — Sanitarios Norte'},
-  {t:390,k:'r',  x:'WHZ-0412 lanza RUT-01 · barrido mecánico de Luneta'},
-  {t:390,k:'s',  x:'S. Félix inicia recorrido de apertura'},
-  {t:400,k:'h',  x:'R. Salinas cubre la plaza de A. Mendoza — 40 min de hueco'},
-  {t:470,k:'r',  x:'WHZ-0533 cierra RUT-04 al 100% · 1,180 m²'},
-  {t:485,k:'r',  x:'WHZ-0412 cierra RUT-01 al 96% · 1,640 m²'},
-  {t:500,k:'r',  x:'WHZ-0533 lanza RUT-09 · barrido de Balcón'},
-  {t:550,k:'r',  x:'WHZ-0412 lanza RUT-02 · Primer piso, plan parcial de 520 m²'},
-  {t:555,k:'s',  x:'S. Félix levanta supervisión formal — GPS confirmado, 6 fotos'},
-  {t:557,k:'crit',x:'Sanitarios Ala Sur calificado 4.2 · sin reposición de consumibles'},
-  {t:558,k:'crit',x:'Alerta escalada a Coordinación de sitio — SLA 8 h'},
-  {t:560,k:'warn',x:'Visión IA: 2 personas sin cofia en Área de alimentos (conf. 0.91)'},
-  {t:592,k:'warn',x:'WHZ-0412 detenido: obstáculo persistente (tarima de evento)'},
-  {t:595,k:'r',  x:'WHZ-0533 cierra RUT-09 al 100% · 620 m²'},
-  {t:630,k:'r',  x:'WHZ-0533 lanza repaso de Vestíbulo — no suma superficie nueva'},
-  {t:640,k:'warn',x:'WHZ-0412 termina RUT-02 al 38% · 200 m² de 520'},
-  {t:695,k:'r',  x:'WHZ-0533 cierra repaso · batería al 48%'},
-  {t:718,k:'s',  x:'S. Félix inicia recorrido de cierre'},
-  {t:838,k:'h',  x:'Inicia salida del personal del turno'},
-  {t:840,k:'crit',x:'Cierre: Estacionamiento P1 sin atención — 7,400 m² fuera del plan'}
+  {t:352,k:'h',  x:'M. Ortega clocks in on the biometric reader — Main Lobby'},
+  {t:355,k:'h',  x:'P. Herrera clocks in — corridor round'},
+  {t:358,k:'h',  x:'J. Rangel clocks in — Orchestra'},
+  {t:360,k:'crit',x:'South Wing Restrooms opens the shift with nobody assigned'},
+  {t:365,k:'h',  x:'D. Nava clocks in — Esplanade'},
+  {t:375,k:'r',  x:'WHZ-0533 launches RUT-04 · autonomous scrubbing of the Lobby'},
+  {t:381,k:'warn',x:'L. Cruz clocks in 21 min late — North Restrooms'},
+  {t:390,k:'r',  x:'WHZ-0412 launches RUT-01 · mechanical sweep of the Orchestra'},
+  {t:390,k:'s',  x:'S. Félix starts the opening walk'},
+  {t:400,k:'h',  x:'R. Salinas covers A. Mendoza\'s post — a 40 min gap'},
+  {t:470,k:'r',  x:'WHZ-0533 closes RUT-04 at 100% · 1,180 m²'},
+  {t:485,k:'r',  x:'WHZ-0412 closes RUT-01 at 96% · 1,640 m²'},
+  {t:500,k:'r',  x:'WHZ-0533 launches RUT-09 · sweep of the Balcony'},
+  {t:550,k:'r',  x:'WHZ-0412 launches RUT-02 · Mezzanine, partial plan of 520 m²'},
+  {t:555,k:'s',  x:'S. Félix logs a formal inspection — GPS confirmed, 6 photos'},
+  {t:557,k:'crit',x:'South Wing Restrooms scored 4.2 · no consumables restocked'},
+  {t:558,k:'crit',x:'Alert escalated to Site coordination — SLA 8 h'},
+  {t:560,k:'warn',x:'AI vision: 2 people without hair covers in the Food area (conf. 0.91)'},
+  {t:592,k:'warn',x:'WHZ-0412 stopped: persistent obstacle (event staging deck)'},
+  {t:595,k:'r',  x:'WHZ-0533 closes RUT-09 at 100% · 620 m²'},
+  {t:630,k:'r',  x:'WHZ-0533 launches a Lobby touch-up — adds no new area'},
+  {t:640,k:'warn',x:'WHZ-0412 ends RUT-02 at 38% · 200 m² of 520'},
+  {t:695,k:'r',  x:'WHZ-0533 closes the touch-up · battery at 48%'},
+  {t:718,k:'s',  x:'S. Félix starts the closing walk'},
+  {t:838,k:'h',  x:'Shift staff begin clocking out'},
+  {t:840,k:'crit',x:'Close: Parking P1 never serviced — 7,400 m² outside the plan'}
 ];
 
 /* ============================ rutinas de limpieza ============================ */
 const rutinas=[
-  {id:'RUT-01', n:'Barrido mecánico de Luneta', z:'Luneta', ej:'robot', frec:'Diaria post-evento', dur:95, m2:5400,
-   ins:'Equipo WHZ · depósito y filtro', ver:'Telemetría + foto de cierre',
+  {id:'RUT-01', n:'Mechanical sweep of the Orchestra', z:'Orchestra', ej:'robot', frec:'Daily, post-event', dur:95, m2:5400,
+   ins:'WHZ unit · tank and filter', ver:'Telemetry + closing photo',
    plan:[390,485], real:[390,485], pc:96,
-   pasos:['Verificar que la sala esté libre de obstáculos y tarimas','Confirmar plano y zona cargados en el equipo',
-          'Lanzar la corrida y registrar quién la lanzó','Acompañar las primeras dos pasadas',
-          'Recibir el reporte de m² y porcentaje de plan','Vaciar depósito, limpiar filtro y poner a cargar']},
-  {id:'RUT-02', n:'Barrido mecánico de Primer piso', z:'Primer piso', ej:'robot', frec:'Diaria', dur:90, m2:520,
-   ins:'Equipo WHZ', ver:'Telemetría',
-   plan:[550,640], real:[550,592], pc:38, est:'parcial'},
-  {id:'RUT-03', n:'Desinfección de sanitarios', z:'Sanitarios Norte y Sur', ej:'persona', frec:'3× por turno', dur:25, m2:840,
-   ins:'Desinfectante, fibra, señalización, bitácora', ver:'Foto + visión IA de consumibles',
+   pasos:['Check the hall is clear of obstacles and staging','Confirm the map and zone are loaded on the unit',
+          'Launch the run and record who launched it','Shadow the first two passes',
+          'Receive the m² and plan-percentage report','Empty the tank, clean the filter and put it on charge']},
+  {id:'RUT-02', n:'Mechanical sweep of the Mezzanine', z:'Mezzanine', ej:'robot', frec:'Daily', dur:90, m2:520,
+   ins:'WHZ unit', ver:'Telemetry',
+   plan:[550,640], real:[550,592], pc:38, est:'partial'},
+  {id:'RUT-03', n:'Restroom disinfection', z:'North and South Restrooms', ej:'person', frec:'3× per shift', dur:25, m2:840,
+   ins:'Disinfectant, scrub pad, signage, logbook', ver:'Photo + AI vision of consumables',
    plan:[390,415], real:[390,418], pc:100,
-   pasos:['Señalizar el área y bloquear el acceso','Retirar residuos y cambiar bolsa',
-          'Lavar y desinfectar tazas y mingitorios','Limpiar lavabos, espejos y mamparas',
-          'Trapear con solución desinfectante','Reponer papel, jabón y toalla',
-          'Firmar bitácora y tomar foto de cierre']},
-  {id:'RUT-04', n:'Fregado autónomo de Vestíbulo', z:'Vestíbulo principal', ej:'robot', frec:'Diaria', dur:95, m2:3200,
-   ins:'Equipo WHZ · solución de fregado', ver:'Telemetría + foto de cierre',
+   pasos:['Sign the area and block access','Remove waste and change the liner',
+          'Wash and disinfect bowls and urinals','Clean sinks, mirrors and partitions',
+          'Mop with disinfectant solution','Restock paper, soap and towels',
+          'Sign the logbook and take a closing photo']},
+  {id:'RUT-04', n:'Autonomous scrubbing of the Lobby', z:'Main Lobby', ej:'robot', frec:'Daily', dur:95, m2:3200,
+   ins:'WHZ unit · scrubbing solution', ver:'Telemetry + closing photo',
    plan:[375,470], real:[375,470], pc:100},
-  {id:'RUT-05', n:'Recolección de residuos de Explanada', z:'Explanada', ej:'persona', frec:'4× por turno', dur:35, m2:9500,
-   ins:'Carro, bolsas, pinza, escoba', ver:'Foto por recorrido',
+  {id:'RUT-05', n:'Waste collection on the Esplanade', z:'Esplanade', ej:'person', frec:'4× per shift', dur:35, m2:9500,
+   ins:'Cart, liners, grabber, broom', ver:'Photo per round',
    plan:[365,400], real:[365,404], pc:100},
-  {id:'RUT-06', n:'Detallado de butacas', z:'Luneta, Primer piso, Balcón', ej:'persona', frec:'Semanal', dur:240, m2:12300,
-   ins:'Aspiradora de mochila, cepillo, quitamanchas', ver:'Muestreo por fila + foto',
+  {id:'RUT-06', n:'Seat detailing', z:'Orchestra, Mezzanine, Balcony', ej:'person', frec:'Weekly', dur:240, m2:12300,
+   ins:'Backpack vacuum, brush, spot remover', ver:'Row sampling + photo',
    plan:[420,660], real:[425,668], pc:100},
-  {id:'RUT-07', n:'Reposición de consumibles', z:'Sanitarios Norte y Sur', ej:'persona', frec:'2× por turno', dur:20,
-   ins:'Papel, jabón, toalla, aromatizante', ver:'Visión IA · dispensadores con carga',
-   plan:[540,560], real:null, pc:0, est:'no ejecutada'},
-  {id:'RUT-08', n:'Cristales y canceles', z:'Vestíbulo, Pasillos', ej:'persona', frec:'Semanal', dur:180,
-   ins:'Jalador, limpiavidrios, andamio ligero', ver:'Foto antes y después',
+  {id:'RUT-07', n:'Consumables restocking', z:'North and South Restrooms', ej:'person', frec:'2× per shift', dur:20,
+   ins:'Paper, soap, towels, air freshener', ver:'AI vision · dispensers loaded',
+   plan:[540,560], real:null, pc:0, est:'not executed'},
+  {id:'RUT-08', n:'Glass and partitions', z:'Lobby, Corridors', ej:'person', frec:'Weekly', dur:180,
+   ins:'Squeegee, glass cleaner, light scaffold', ver:'Before and after photo',
    plan:[480,660], real:[484,664], pc:100},
-  {id:'RUT-09', n:'Barrido de Balcón', z:'Balcón', ej:'robot', frec:'Diaria', dur:95, m2:2800,
-   ins:'Equipo WHZ', ver:'Telemetría',
+  {id:'RUT-09', n:'Sweep of the Balcony', z:'Balcony', ej:'robot', frec:'Daily', dur:95, m2:2800,
+   ins:'WHZ unit', ver:'Telemetry',
    plan:[500,595], real:[500,595], pc:100},
-  {id:'RUT-10', n:'Pulido de pisos duros', z:'Vestíbulo, Pasillos', ej:'persona + máquina', frec:'Mensual', dur:300,
-   ins:'Pulidora, disco, sellador', ver:'Acta de entrega + foto',
-   plan:[600,840], real:[608,840], pc:92, est:'en curso'},
-  {id:'RUT-11', n:'Barrido de Estacionamiento P1', z:'Estacionamiento P1', ej:'persona', frec:'Diaria', dur:60, m2:7400,
-   ins:'Escoba industrial, carro, bolsas', ver:'Foto por nivel',
-   plan:null, real:null, pc:0, est:'fuera del plan'}
+  {id:'RUT-10', n:'Hard-floor burnishing', z:'Lobby, Corridors', ej:'person + machine', frec:'Monthly', dur:300,
+   ins:'Burnisher, pad, sealer', ver:'Handover record + photo',
+   plan:[600,840], real:[608,840], pc:92, est:'in progress'},
+  {id:'RUT-11', n:'Sweep of Parking P1', z:'Parking P1', ej:'person', frec:'Daily', dur:60, m2:7400,
+   ins:'Industrial broom, cart, liners', ver:'Photo per level',
+   plan:null, real:null, pc:0, est:'outside the plan'}
 ];
 
 /* ============================ utilidades ============================ */
 const el = (t,c,h)=>{const n=document.createElement(t); if(c)n.className=c; if(h!=null)n.innerHTML=h; return n;};
-const estName = e => e==='ok'?'En meta':e==='atencion'?'Atención':e==='critico'?'Crítico':e;
+const estName = e => e==='ok'?'On target':e==='atencion'?'Watch':e==='critico'?'Critical':e;
 const estCls  = e => e==='ok'?'ok':e==='critico'||e==='crit'?'crit':'warn';
 
 function tiles(list){
@@ -776,8 +776,8 @@ function bindTip(node, title, meta){
 function viewPanorama(){
   const v=document.getElementById('v-panorama'); v.textContent='';
   const head=el('div','vhead');
-  head.append(el('h2',null,'Panorama del grupo'),
-    el('p',null,'Los ocho sitios activos de Grupo Batia en un solo corte: cuánto del plan se cubrió, quién estuvo, qué hizo el robot y qué dijo el supervisor. Cada cifra indica de qué sistema viene.'));
+  head.append(el('h2',null,'Group overview'),
+    el('p',null,'All eight active Grupo Batia sites in one cut: how much of the plan was covered, who was there, what the robot did and what the supervisor said. Each figure names the system it comes from.'));
   v.append(head, tiles(grupo.tiles));
 
   /* barras: cobertura por sitio — una sola serie, sin leyenda */
@@ -792,11 +792,11 @@ function viewPanorama(){
     if(s.est==='critico') fill.style.background='var(--crit)';
     else if(s.est==='atencion') fill.style.background='var(--warn)';
     track.append(fill);
-    bindTip(row, s.s, s.cob+'% del plan · asistencia '+s.asis+'% · calificación '+s.cal+' · '+F(s.m2)+' m²');
+    bindTip(row, s.s, s.cob+'% of plan · attendance'+s.asis+'% · score'+s.cal+' · '+F(s.m2)+' m²');
     row.append(lab, track, el('div','val',s.cob.toFixed(1)+'%'));
     bars.append(row);
   });
-  const metaLine=el('p','sub','Meta del grupo: 96%. Las barras ámbar y roja marcan los sitios fuera de meta.');
+  const metaLine=el('p','sub','Group target: 96%. Amber and red bars mark the sites below target.');
   metaLine.style.marginTop='10px';
 
   /* barras apiladas: superficie atendida por línea — 2 series, leyenda + etiqueta directa */
@@ -811,30 +811,30 @@ function viewPanorama(){
     stack.append(a);
     if(l.r){const b=el('i'); b.style.width=(l.r/tot*100)+'%'; b.style.background='var(--lane-r)'; stack.append(b);}
     const holder=el('div'); holder.style.minWidth='0'; holder.append(stack);
-    bindTip(row, l.l, 'Personal '+F(l.h)+' m² · robot '+F(l.r)+' m² · total '+F(tot)+' m²');
+    bindTip(row, l.l, 'Staff'+F(l.h)+' m² · robot'+F(l.r)+' m² · total '+F(tot)+' m²');
     row.append(holder, el('div','val',F(tot)));
     st.append(row);
   });
   const leg=el('div','legend');
-  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-h)"></i>Personal</span>'+
+  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-h)"></i>Staff</span>'+
                 '<span><i class="swatch" style="background:var(--lane-r)"></i>Robot</span>'+
-                '<span class="code">m² atendidos hoy</span>';
+                '<span class="code">m² serviced today</span>';
   leg.style.marginTop='10px';
 
   const g=el('div','grid'); g.style.gridTemplateColumns='repeat(auto-fit,minmax(320px,1fr))';
   g.append(
-    card('Cobertura del plan por sitio','Porcentaje del plan del día efectivamente cubierto.',bars,metaLine),
-    card('Superficie atendida por línea de negocio','Metros cuadrados de hoy, separados por quién los atendió.',st,leg)
+    card('Plan coverage by site','Percentage of the day\'s plan actually covered.',bars,metaLine),
+    card('Area serviced by business line','Today\'s square meters, split by who serviced them.',st,leg)
   );
   v.append(g);
 
-  v.append(card('Sitios activos','Un clic en el renglón del Auditorio Nacional abre el turno completo en la vista Sitio.',
+  v.append(card('Active sites','Clicking the Auditorio Nacional row opens the full shift in the Shift view.',
     tabla(
-      [{t:'Sitio'},{t:'Línea'},{t:'Ubicación'},{t:'m²',n:1},{t:'Robots',n:1},{t:'Cobertura',n:1},{t:'Asistencia',n:1},{t:'Calificación',n:1},{t:'Estado'}],
+      [{t:'Site'},{t:'Line'},{t:'Location'},{t:'m²',n:1},{t:'Robots',n:1},{t:'Fill-in',n:1},{t:'Attendance',n:1},{t:'Score',n:1},{t:'Status'}],
       grupo.sitios.map(s=>({
         _alerta:s.est==='critico',
         cells:[
-          s.foco?'<a href="#sitio"><b>'+s.s+'</b></a>':s.s, s.l, s.g, F(s.m2), s.rb||'—',
+          s.foco?'<a href="#shift"><b>'+s.s+'</b></a>':s.s, s.l, s.g, F(s.m2), s.rb||'—',
           s.cob.toFixed(1)+'%', s.asis.toFixed(1)+'%', s.cal.toFixed(1),
           '<span class="chip '+estCls(s.est)+'"><i class="dot"></i>'+estName(s.est)+'</span>'
         ]}))
@@ -843,7 +843,7 @@ function viewPanorama(){
 }
 
 /* ============================ vista: sitio (línea de tiempo) ============================ */
-const LANE = {h:{c:'var(--lane-h)',n:'Personal'}, r:{c:'var(--lane-r)',n:'Robot'}, s:{c:'var(--lane-s)',n:'Supervisión'}, x:{c:'var(--crit)',n:'Hueco'}};
+const LANE = {h:{c:'var(--lane-h)',n:'Staff'}, r:{c:'var(--lane-r)',n:'Robot'}, s:{c:'var(--lane-s)',n:'Inspections'}, x:{c:'var(--crit)',n:'Gap'}};
 
 function timeline(){
   const GUT=168, RM=26, W=1000, PW=W-GUT-RM, t0=sitio.t0, t1=sitio.t1;
@@ -858,7 +858,7 @@ function timeline(){
   const H=y+10;
 
   const svg=mk('svg',{class:'tl',viewBox:'0 0 '+W+' '+H,role:'img',
-    'aria-label':'Línea de tiempo del turno con los carriles de personal, robots, supervisión y huecos de cobertura'});
+    'aria-label':'Shift timeline with the staff, robot, inspection and coverage-gap lanes'});
 
   const defs=mk('defs');
   const pat=mk('pattern',{id:'hatch',width:'7',height:'7',patternTransform:'rotate(45)',patternUnits:'userSpaceOnUse'});
@@ -933,38 +933,38 @@ function timeline(){
 }
 
 function viewSitio(){
-  const v=document.getElementById('v-sitio'); v.textContent='';
+  const v=document.getElementById('v-shift'); v.textContent='';
   const head=el('div','vhead');
-  head.append(el('h2',null,sitio.nombre+' · turno 06:00–14:00'), el('p',null,sitio.contexto));
+  head.append(el('h2',null,sitio.nombre+' · shift 06:00–14:00'), el('p',null,sitio.contexto));
   const ch=el('div','chips');
-  ch.innerHTML='<span class="src-chip">asistencia: biométrico + SINGA</span>'+
-               '<span class="src-chip">zonas y reportes: AsistIA</span>'+
-               '<span class="src-chip">supervisión: CRM Supervisiones</span>'+
-               '<span class="src-chip">evidencia: visión IA</span>'+
-               '<span class="src-chip">robots: módulo de robótica</span>';
+  ch.innerHTML='<span class="src-chip">attendance: biometrics + SINGA</span>'+
+               '<span class="src-chip">zones and reports: AsistIA</span>'+
+               '<span class="src-chip">inspections: CRM Supervisiones</span>'+
+               '<span class="src-chip">evidence: AI vision</span>'+
+               '<span class="src-chip">robots: robotics module</span>';
   head.append(ch);
   v.append(head);
 
   v.append(tiles([
-    {k:'Asistencia', v:'13 / 14', n:'1 falta (F) · 1 retardo · 1 cobertura', src:'Biométrico + SINGA'},
-    {k:'Superficie del plan', v:'27,620', n:'m² programados hoy de 42,000 del sitio', src:'Programa del turno'},
-    {k:'m² por robot', v:'3,640', n:'2 equipos · 1 fuera de servicio', src:'Módulo de robótica'},
-    {k:'Zonas sin atender', v:'1', n:'Estacionamiento P1 · fuera del plan del día', src:'Plan vs. los tres carriles'},
-    {k:'Supervisión', v:'7.4', n:'09:15 · GPS confirmado · 6 fotos', src:'CRM Supervisiones'},
-    {k:'Zona crítica', v:'4.2', n:'Sanitarios Ala Sur', src:'CRM Supervisiones'}
+    {k:'Attendance', v:'13 / 14', n:'1 absence (A) · 1 late · 1 fill-in', src:'Biometrics + SINGA'},
+    {k:'Plan area', v:'27,620', n:'m² scheduled today out of the site\'s 42,000', src:'Shift program'},
+    {k:'m² by robot', v:'3,640', n:'2 units · 1 out of service', src:'Robotics module'},
+    {k:'Zones not serviced', v:'1', n:'Parking P1 · outside the day\'s plan', src:'Plan vs. the three lanes'},
+    {k:'Inspections', v:'7.4', n:'09:15 · GPS confirmed · 6 photos', src:'CRM Supervisiones'},
+    {k:'Critical zone', v:'4.2', n:'South Wing Restrooms', src:'CRM Supervisiones'}
   ]));
 
   const leg=el('div','legend');
-  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-h)"></i>Personal</span>'+
+  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-h)"></i>Staff</span>'+
     '<span><i class="swatch" style="background:var(--lane-r)"></i>Robot</span>'+
-    '<span><i class="swatch" style="background:var(--lane-s)"></i>Supervisión</span>'+
-    '<span><i class="swatch" style="background:var(--crit)"></i>Hueco de cobertura</span>'+
-    '<span><i class="swatch" style="background:var(--warn)"></i>Corrida interrumpida</span>'+
-    '<span class="code">pasa el cursor sobre cualquier bloque</span>';
+    '<span><i class="swatch" style="background:var(--lane-s)"></i>Inspection</span>'+
+    '<span><i class="swatch" style="background:var(--crit)"></i>Coverage gap</span>'+
+    '<span><i class="swatch" style="background:var(--warn)"></i>Interrupted run</span>'+
+    '<span class="code">hover over any block</span>';
   leg.style.marginBottom='12px';
 
-  v.append(card('El turno completo en un solo eje',
-    'Cada carril viene de un sistema distinto. Puestos uno encima de otro, aparece lo que ninguno de los tres muestra por separado.',
+  v.append(card('The whole shift on a single axis',
+    'Each lane comes from a different system. Stacked on one axis, what none of the three shows on its own becomes visible.',
     leg, timeline()));
 
   const hall=el('div');
@@ -975,20 +975,20 @@ function viewSitio(){
     b.append(el('h4',null,h.t), el('p',null,h.p), el('p','why',h.w));
     f.append(b); hall.append(f);
   });
-  v.append(card('Lo que solo se ve al unir los tres carriles', null, hall));
+  v.append(card('What only shows when the three lanes are joined', null, hall));
 
   const g=el('div','grid'); g.style.gridTemplateColumns='repeat(auto-fit,minmax(340px,1fr))';
   g.append(
-    card('Cobertura por zona','Minutos de personal, metros de robot y si alguien verificó el resultado.',
-      tabla([{t:'Zona'},{t:'m²',n:1},{t:'min persona',n:1},{t:'m² robot',n:1},{t:'Supervisada'},{t:'Calif.',n:1}],
+    card('Coverage by zone','Staff minutes, robot meters, and whether anyone verified the result.',
+      tabla([{t:'Zone'},{t:'m²',n:1},{t:'staff min',n:1},{t:'robot m²',n:1},{t:'Inspected'},{t:'Score',n:1}],
         sitio.zonas.map(z=>({_alerta:z.alerta,cells:[
           z.z, F(z.m2), z.min?F(z.min):'0', z.rm2?F(z.rm2):'0',
-          z.sup==='sí'?'<span class="chip ok"><i class="dot"></i>sí</span>':'<span class="chip"><i class="dot"></i>no</span>',
+          z.sup==='yes'?'<span class="chip ok"><i class="dot"></i>yes</span>':'<span class="chip"><i class="dot"></i>no</span>',
           z.cal!=null?z.cal.toFixed(1):'—'
         ]}))
       )),
-    card('Evidencia de la supervisión de las 09:15','Hallazgo del supervisor y lo que detectaron los modelos sobre sus fotos.',
-      tabla([{t:'Zona'},{t:'Hallazgo del supervisor'},{t:'Detección de IA'},{t:'Modelo'},{t:'Conf.',n:1}],
+    card('Evidence from the 09:15 inspection','The supervisor\'s finding and what the models detected in their photos.',
+      tabla([{t:'Zone'},{t:'Supervisor\'s finding'},{t:'AI detection'},{t:'Model'},{t:'Conf.',n:1}],
         sitio.evidencia.map(e=>({_alerta:e.est==='crit',cells:[
           e.z,e.h,e.ia,'<span class="code">'+e.mod+'</span>',e.c.toFixed(2)
         ]}))
@@ -999,22 +999,22 @@ function viewSitio(){
 
 /* ============================ vista: flota ============================ */
 function viewFlota(){
-  const v=document.getElementById('v-flota'); v.textContent='';
+  const v=document.getElementById('v-fleet'); v.textContent='';
   const head=el('div','vhead');
-  head.append(el('h2',null,'Flota de robots'),
-    el('p',null,'El inventario de equipos del grupo, de cualquier marca, con lo que hizo cada uno en el turno. El módulo de robótica guarda cada corrida con la misma clave de inmueble que usa SINGA y ligada a la rutina del catálogo que ejecuta: por eso el robot y la persona caben en la misma tabla.'));
+  head.append(el('h2',null,'Robot fleet'),
+    el('p',null,'The group\'s unit inventory, any make, with what each one did during the shift. The robotics module stores every run under the same property key SINGA uses, tied to the catalog routine it performs: that is why the robot and the person fit in the same table.'));
   v.append(head);
 
   const act=flota.robots.filter(r=>r.est==='operando');
   v.append(tiles([
-    {k:'Equipos en flota', v:String(flota.robots.length), n:act.length+' operando · 1 fuera de servicio · 1 en mantenimiento', src:'Inventario de robótica'},
-    {k:'m² robotizados hoy', v:F(flota.robots.reduce((s,r)=>s+r.m2,0)), n:'en 5 de 8 sitios', src:'Módulo de robótica'},
-    {k:'Plan cumplido', v:(act.reduce((s,r)=>s+r.plan,0)/act.length).toFixed(1)+'%', n:'promedio de los equipos operando', src:'Módulo de robótica'},
-    {k:'Interrupciones', v:String(flota.robots.reduce((s,r)=>s+r.err,0)), n:'en 3 equipos distintos', src:'Módulo de robótica'}
+    {k:'Units in fleet', v:String(flota.robots.length), n:act.length+' operating · 1 out of service · 1 in maintenance', src:'Robotics inventory'},
+    {k:'Robot-covered m² today', v:F(flota.robots.reduce((s,r)=>s+r.m2,0)), n:'at 5 of 8 sites', src:'Robotics module'},
+    {k:'Plan completed', v:(act.reduce((s,r)=>s+r.plan,0)/act.length).toFixed(1)+'%', n:'average across operating units', src:'Robotics module'},
+    {k:'Interruptions', v:String(flota.robots.reduce((s,r)=>s+r.err,0)), n:'across 3 different units', src:'Robotics module'}
   ]));
 
-  v.append(card('Equipos','Estado al cierre del turno de las 14:00.',
-    tabla([{t:'Equipo'},{t:'Modelo'},{t:'Marca'},{t:'Sitio'},{t:'Plan',n:1},{t:'m² hoy',n:1},{t:'Batería',n:1},{t:'Errores',n:1},{t:'Estado'}],
+  v.append(card('Units','Status at the 14:00 shift close.',
+    tabla([{t:'Unit'},{t:'Model'},{t:'Make'},{t:'Site'},{t:'Plan',n:1},{t:'m² today',n:1},{t:'Battery',n:1},{t:'Errors',n:1},{t:'Status'}],
       flota.robots.map(r=>({
         _alerta:r.est==='fuera',
         cells:[
@@ -1022,19 +1022,19 @@ function viewFlota(){
           r.est==='operando'?r.plan+'%':'—', r.m2?F(r.m2):'—',
           r.est==='operando'?r.bat+'%':'—', r.err||'0',
           r.est==='operando'
-            ? (r.plan>=95?'<span class="chip ok"><i class="dot"></i>operando</span>':'<span class="chip warn"><i class="dot"></i>bajo plan</span>')
-            : r.est==='fuera'?'<span class="chip crit"><i class="dot"></i>fuera de servicio</span>'
-            :'<span class="chip"><i class="dot"></i>mantenimiento</span>'
+            ? (r.plan>=95?'<span class="chip ok"><i class="dot"></i>operating</span>':'<span class="chip warn"><i class="dot"></i>below plan</span>')
+            : r.est==='fuera'?'<span class="chip crit"><i class="dot"></i>out of service</span>'
+            :'<span class="chip"><i class="dot"></i>maintenance</span>'
         ]}))
     )));
 
   const n=el('div','note');
-  n.innerHTML='<b>Por qué este modelo y no otro.</b> Los campos obligatorios son exactamente los que permiten sumar el trabajo del robot al del personal en la misma zona y el mismo turno: inmueble, zona, rutina y tiempo. Sin esos cuatro, la telemetría del equipo queda como una isla y vuelve a pasar lo de siempre: un tablero de robots por un lado y la operación por el otro.';
-  v.append(card('Modelo de datos de una corrida','Lo que el módulo de robótica guarda cada vez que un equipo trabaja.',
-    tabla([{t:'Campo'},{t:'Qué es'},{t:'Nivel'}],
+  n.innerHTML='<b>Why this model and not another.</b> The required fields are exactly the ones that let the robot\'s work be added to the staff\'s work in the same zone and the same shift: property, zone, routine and time. Without those four, the unit\'s telemetry stays an island and the usual thing happens again: a robot dashboard on one side and the operation on the other.';
+  v.append(card('Data model of a run','What the robotics module records every time a unit works.',
+    tabla([{t:'Field'},{t:'What it is'},{t:'Level'}],
       flota.campos.map(c=>({cells:[
         '<span class="code">'+c.c+'</span>', c.d,
-        c.req==='obligatorio'?'<span class="chip ok"><i class="dot"></i>obligatorio</span>':'<span class="chip"><i class="dot"></i>deseable</span>'
+        c.req==='obligatorio'?'<span class="chip ok"><i class="dot"></i>required</span>':'<span class="chip"><i class="dot"></i>nice to have</span>'
       ]}))
     ), n));
 }
@@ -1043,38 +1043,38 @@ function viewFlota(){
 function viewSupervision(){
   const v=document.getElementById('v-supervision'); v.textContent='';
   const head=el('div','vhead');
-  head.append(el('h2',null,'Supervisión y escalamiento'),
-    el('p',null,'Cada supervisión lleva calificación, GPS, fotos y la lectura de los modelos sobre esas fotos. Lo que no cumple no se queda en una cifra: entra a la matriz de escalamiento con dueño y tiempo de respuesta.'));
+  head.append(el('h2',null,'Inspections and escalation'),
+    el('p',null,'Every inspection carries a score, GPS, photos and the models\' reading of those photos. What fails does not stop at a number: it enters the escalation matrix with an owner and a response time.'));
   v.append(head);
 
   const prom=(supervisiones.reduce((s,x)=>s+x.cal,0)/supervisiones.length).toFixed(1);
   v.append(tiles([
-    {k:'Supervisiones del día', v:String(supervisiones.length), n:'8 sitios · 8 supervisores', src:'CRM Supervisiones'},
-    {k:'Calificación promedio', v:prom, n:'meta 8.0', src:'CRM Supervisiones'},
-    {k:'Con evidencia de IA', v:'9 / 11', n:'una sin GPS, otra sin fotos suficientes', src:'Visión IA'},
-    {k:'Alertas en escalamiento', v:'3', n:'1 con SLA vencido', src:'Matriz de escalamiento'}
+    {k:'Inspections today', v:String(supervisiones.length), n:'8 sites · 8 supervisors', src:'CRM Supervisiones'},
+    {k:'Average score', v:prom, n:'target 8.0', src:'CRM Supervisiones'},
+    {k:'With AI evidence', v:'9 / 11', n:'one without GPS, another without enough photos', src:'AI vision'},
+    {k:'Alerts in escalation', v:'3', n:'1 past SLA', src:'Escalation matrix'}
   ]));
 
-  v.append(card('Supervisiones de hoy','El renglón del Auditorio Nacional es el que se abre en la vista Sitio.',
-    tabla([{t:'Hora'},{t:'Sitio'},{t:'Supervisor'},{t:'Calif.',n:1},{t:'GPS'},{t:'Fotos',n:1},{t:'Lectura de IA'},{t:'Estado'}],
+  v.append(card('Today\'s inspections','The Auditorio Nacional row is the one that opens in the Shift view.',
+    tabla([{t:'Time'},{t:'Site'},{t:'Supervisor'},{t:'Score',n:1},{t:'GPS'},{t:'Photos',n:1},{t:'AI reading'},{t:'Status'}],
       supervisiones.map(s=>({
         _alerta:s.est==='crit',
         cells:[
           '<span class="code">'+s.h+'</span>',
-          s.foco?'<a href="#sitio">'+s.sitio+'</a>':s.sitio,
+          s.foco?'<a href="#shift">'+s.sitio+'</a>':s.sitio,
           s.sup, s.cal.toFixed(1),
-          s.gps==='sí'?'<span class="chip ok"><i class="dot"></i>sí</span>':'<span class="chip warn"><i class="dot"></i>no</span>',
+          s.gps==='yes'?'<span class="chip ok"><i class="dot"></i>yes</span>':'<span class="chip warn"><i class="dot"></i>no</span>',
           s.fotos, s.ia,
-          '<span class="chip '+estCls(s.est)+'"><i class="dot"></i>'+(s.est==='ok'?'en meta':s.est==='warn'?'atención':'crítico')+'</span>'
+          '<span class="chip '+estCls(s.est)+'"><i class="dot"></i>'+(s.est==='ok'?'on target':s.est==='warn'?'watch':'critical')+'</span>'
         ]}))
     )));
 
-  v.append(card('Escalamiento abierto','Dueño, tiempo de respuesta comprometido y tiempo transcurrido.',
-    tabla([{t:'Alerta'},{t:'Responsable'},{t:'SLA'},{t:'Transcurrido'},{t:'Estado'}],
+  v.append(card('Open escalation','Owner, committed response time and elapsed time.',
+    tabla([{t:'Alert'},{t:'Owner'},{t:'SLA'},{t:'Elapsed'},{t:'Status'}],
       escalamiento.map(e=>({
         _alerta:e.est==='crit',
         cells:[e.alerta,e.resp,e.sla,e.trans,
-          '<span class="chip '+estCls(e.est)+'"><i class="dot"></i>'+(e.est==='crit'?'SLA vencido':e.est==='warn'?'en tiempo':'en tiempo')+'</span>']
+          '<span class="chip '+estCls(e.est)+'"><i class="dot"></i>'+(e.est==='crit'?'SLA breached':e.est==='warn'?'within SLA':'within SLA')+'</span>']
       }))
     )));
 }
@@ -1087,18 +1087,18 @@ const sim={t:562, play:true, vel:60, raf:0, last:0, drag:false, nEv:-1, capas:{r
 const R={};  /* referencias a nodos vivos */
 
 function viewMapa(){
-  const v=document.getElementById('v-mapa'); v.textContent='';
+  const v=document.getElementById('v-map'); v.textContent='';
   const head=el('div','vhead');
-  head.append(el('h2',null,'Mapa vivo · Auditorio Nacional'),
-    el('p',null,'El turno del 24 de noviembre reproducido sobre el plano del sitio. Los robots recorren la ruta real de cada rutina, el personal se mueve por su zona y el supervisor hace sus recorridos. Todo lo que ves se calcula a partir de la hora simulada: mueve la barra y el sitio completo se recalcula a ese minuto.'));
+  head.append(el('h2',null,'Live map · Auditorio Nacional'),
+    el('p',null,'The November 24 shift replayed over the site\'s floor plan. The robots run the actual route of each routine, the staff move through their zones and the supervisor makes his walks. Everything you see is computed from the simulated time: drag the slider and the whole site recalculates to that minute.'));
   v.append(head);
 
-  const ctrl=barraTiempo('mapa','hora del sitio');
+  const ctrl=barraTiempo('mapa','site time');
 
   const capas=el('div','layers');
-  [['rutas','Rutas planeadas','var(--lane-r)'],['estela','Estela cubierta','var(--lane-r)'],
-   ['personal','Personal','var(--lane-h)'],['sup','Supervisor','var(--lane-s)'],
-   ['cobertura','Cobertura por zona','var(--brand)']].forEach(([k,lab,c])=>{
+  [['rutas','Planned routes','var(--lane-r)'],['estela','Covered trail','var(--lane-r)'],
+   ['personal','Staff','var(--lane-h)'],['sup','Supervisor','var(--lane-s)'],
+   ['cobertura','Coverage by zone','var(--brand)']].forEach(([k,lab,c])=>{
     const b=el('button','lay','<i></i>'+lab); b.type='button';
     b.style.setProperty('--c',c);
     b.setAttribute('aria-pressed', sim.capas[k]?'true':'false');
@@ -1109,7 +1109,7 @@ function viewMapa(){
   /* ---- plano ---- */
   const box=el('div','mapbox');
   const svg=mk('svg',{class:'plan',viewBox:'0 0 1000 616',role:'img',
-    'aria-label':'Plano esquemático del Auditorio Nacional con la posición de robots, personal y supervisor a la hora simulada'});
+    'aria-label':'Schematic floor plan of Auditorio Nacional with the position of robots, staff and supervisor at the simulated time'});
   const defs=mk('defs');
   const pt=mk('pattern',{id:'fuera',width:'8',height:'8',patternTransform:'rotate(45)',patternUnits:'userSpaceOnUse'});
   pt.append(mk('rect',{width:'8',height:'8',fill:'transparent'}));
@@ -1132,7 +1132,7 @@ function viewMapa(){
     const nm=mk('text',{x:z.x+11,y:z.y+19,fill:'var(--ink-2)','font-family':'var(--body)','font-size':'11.5','font-weight':'500'});
     nm.textContent=z.n;
     const m2=mk('text',{x:z.x+11,y:z.y+33,fill:'var(--ink-3)','font-family':'var(--mono)','font-size':'9.5'});
-    m2.textContent = z.plan ? F(z.plan)+' m² de plan' : F(z.m2)+' m² · '+z.fuera;
+    m2.textContent = z.plan ? F(z.plan)+' m² of plan' : F(z.m2)+' m² · '+z.fuera;
     g.append(nm,m2);
 
     /* barra de cobertura al pie de la zona */
@@ -1145,7 +1145,7 @@ function viewMapa(){
     g.append(pcv);
     gZona.append(g);
     R.zonas[k]={tint,borde,bh,br,pcv,bw};
-    bindTip(g, z.n, z.plan ? F(z.plan)+' m² de plan · '+F(z.m2)+' m² de superficie' : F(z.m2)+' m² · '+z.fuera);
+    bindTip(g, z.n, z.plan ? F(z.plan)+' m² of plan ·'+F(z.m2)+' m² of floor area' : F(z.m2)+' m² · '+z.fuera);
   }
 
   /* rutas y estelas de cada corrida */
@@ -1171,7 +1171,7 @@ function viewMapa(){
     const sub=mk('text',{x:'11',y:'6.5',fill:'var(--ink-3)','font-family':'var(--mono)','font-size':'8.5','dominant-baseline':'middle'});
     sub.textContent=p.rut; g.append(sub);
     gPers.append(g);
-    bindTip(g,p.n,p.rut+' · '+Z[p.z].n+' · movimiento '+p.mov+(p.nota?' · '+p.nota:''));
+    bindTip(g,p.n,p.rut+' · '+Z[p.z].n+' · status'+p.mov+(p.nota?' · '+p.nota:''));
     return {p,g,t,sub,pulso};
   });
   /* supervisor */
@@ -1184,7 +1184,7 @@ function viewMapa(){
   gs.append(halo);
   gPers.append(gs);
   R.sup={g:gs,t:st,halo};
-  bindTip(gs,'S. Félix','Supervisor de turno');
+  bindTip(gs,'S. Félix','Shift supervisor');
 
   /* robots */
   R.rob=robots.map(r=>{
@@ -1208,7 +1208,7 @@ function viewMapa(){
   const side=el('div','side');
   const lt=el('div','livetiles');
   R.lt={};
-  [['plan','Cobertura del plan'],['m2r','m² por robot'],['pres','Personal en sitio'],['alerta','Alertas abiertas']].forEach(([k,lab])=>{
+  [['plan','Plan coverage'],['m2r','m² by robot'],['pres','Staff on site'],['alerta','Open alerts']].forEach(([k,lab])=>{
     const d=el('div','lt'); d.append(el('div','k',lab));
     const vv=el('div','v','—'); d.append(vv); lt.append(d); R.lt[k]=vv;
   });
@@ -1216,7 +1216,7 @@ function viewMapa(){
 
   /* personal en sitio, renglón por persona */
   const pl=el('div','plist');
-  const ph=el('h4','','Personal en sitio <span id="pcount">—</span>');
+  const ph=el('h4','','Staff on site <span id="pcount">—</span>');
   pl.append(ph);
   R.pcards=personal.map(p=>{
     const row=el('div','prow');
@@ -1230,12 +1230,12 @@ function viewMapa(){
   const fila=el('div','prow off');
   fila.append(el('div','pd'),
     el('div','nm','<b>'+ausente.n+'</b><em>'+ausente.rut+' · '+Z[ausente.z].n+'</em>'),
-    el('div','mn','falta (F)'));
+    el('div','mn','absent (A)'));
   bindTip(fila, ausente.n, ausente.nota);
   pl.append(fila);
   const filaSup=el('div','prow sup');
   filaSup.append(el('div','pd'),
-    el('div','nm','<b>S. Félix</b><em>supervisor de turno</em>'));
+    el('div','nm','<b>S. Félix</b><em>shift supervisor</em>'));
   const supMn=el('div','mn','—'); filaSup.append(supMn);
   pl.append(filaSup);
   R.supMn=supMn;
@@ -1247,8 +1247,8 @@ function viewMapa(){
     const chip=el('span'); hd.append(chip);
     const stt=el('div','st');
     const kv=el('div','kv');
-    kv.innerHTML='<div><div class="k">Rutina</div><div class="v" data-f="rut">—</div></div>'+
-                 '<div><div class="k">m² hoy</div><div class="v" data-f="m2">—</div></div>'+
+    kv.innerHTML='<div><div class="k">Routine</div><div class="v" data-f="rut">—</div></div>'+
+                 '<div><div class="k">m² today</div><div class="v" data-f="m2">—</div></div>'+
                  '<div><div class="k">Plan</div><div class="v" data-f="pc">—</div></div>';
     const bat=el('div','bat'); const bf=el('i'); bat.append(bf);
     const bl=el('div','st');
@@ -1261,18 +1261,18 @@ function viewMapa(){
   const supSt=el('div','st'); sup.append(supSt); side.append(sup);
   R.supCard=supSt;
 
-  const log=el('div','log'); log.append(el('h4',null,'Bitácora del turno'));
+  const log=el('div','log'); log.append(el('h4',null,'Shift log'));
   const logBody=el('div'); log.append(logBody); side.append(log);
   R.log=logBody;
 
   const grid=el('div','mapgrid'); grid.append(box,side);
 
   const leg=el('div','legend');
-  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-r)"></i>Robot y su estela</span>'+
-    '<span><i class="swatch" style="background:var(--lane-h)"></i>Personal</span>'+
+  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-r)"></i>Robot and its trail</span>'+
+    '<span><i class="swatch" style="background:var(--lane-h)"></i>Staff</span>'+
     '<span><i class="swatch" style="background:var(--lane-s)"></i>Supervisor</span>'+
-    '<span><i class="swatch" style="background:var(--crit)"></i>Zona sin cobertura</span>'+
-    '<span class="code">plano esquemático · no es un plano arquitectónico</span>';
+    '<span><i class="swatch" style="background:var(--crit)"></i>Zone with no coverage</span>'+
+    '<span class="code">schematic plan · not an architectural drawing</span>';
 
   v.append(ctrl,capas,grid,leg);
   dibujos.push(dibujaMapa);
@@ -1299,7 +1299,7 @@ function barraTiempo(suf, etiqueta){
   });
   const scrub=el('input');
   Object.assign(scrub,{type:'range',min:'360',max:'840',step:'1',id:'scrub-'+suf});
-  scrub.setAttribute('aria-label','Hora del turno');
+  scrub.setAttribute('aria-label','Shift time');
   scrub.value=String(Math.round(sim.t));
   scrub.addEventListener('pointerdown',()=>sim.drag=true);
   scrub.addEventListener('pointerup',()=>sim.drag=false);
@@ -1312,7 +1312,7 @@ function barraTiempo(suf, etiqueta){
   return ctrl;
 }
 function sincPlay(){
-  relojes.forEach(r=>{ r.play.textContent = sim.play ? '❚❚  Pausa' : '▶  Reproducir'; });
+  relojes.forEach(r=>{ r.play.textContent = sim.play ? '❚❚  Pause' : '▶  Play'; });
 }
 function dibuja(){
   const t=sim.t;
@@ -1365,27 +1365,27 @@ function dibujaMapa(t){
     const c=R.pcards[i];
     const min=Math.max(0,Math.min(t,p.b)-p.a);
     c.row.className='prow'+(activo?'':' pend');
-    c.mn.textContent = t<p.a ? 'sin marcar' : activo ? Math.round(min)+' min' : 'salida '+hm(p.b);
+    c.mn.textContent = t<p.a ? 'not clocked in' : activo ? Math.round(min)+' min' : 'out'+hm(p.b);
     if(activo&&p.nota&&t-p.a<90) c.mn.textContent=p.nota;
   });
   const pc=document.getElementById('pcount');
-  if(pc) pc.textContent=presentes+' de 7';
+  if(pc) pc.textContent=presentes+' of 7';
   const [sx,sy]=posSup(t);
   R.sup.g.style.display = sim.capas.sup?'':'none';
   R.sup.g.setAttribute('transform','translate('+sx.toFixed(1)+' '+sy.toFixed(1)+')');
   R.sup.t.setAttribute('x','13'); R.sup.t.setAttribute('y','0');
   const se=supEstado(t);
   R.sup.halo.setAttribute('stroke-opacity', se.k==='crit'?'.8':'0');
-  if(R.supMn) R.supMn.textContent = t>=555 ? 'calif. 7.4' : t>=390 ? 'en recorrido' : 'sin marcar';
+  if(R.supMn) R.supMn.textContent = t>=555 ? 'score 7.4' : t>=390 ? 'on walk' : 'not clocked in';
   R.supCard.innerHTML='<b>'+se.txt+'</b>'+(se.z!=='—'?' · '+se.z:'')+
-    (t>=555?'<br><span class="code">supervisión 09:15 · calificación 7.4 · GPS confirmado · 6 fotos</span>':'');
+    (t>=555?'<br><span class="code">inspection 09:15 · score 7.4 · GPS confirmed · 6 photos</span>':'');
 
   /* robots */
   let m2tot=0;
   R.rob.forEach(({r,g,cuerpo,sub,pulso},i)=>{
     if(r.fuera){
       g.setAttribute('transform','translate('+r.pos[0]+' '+r.pos[1]+')');
-      sub.textContent='fuera de servicio';
+      sub.textContent='out of service';
       pulso.setAttribute('fill-opacity','0');
       return;
     }
@@ -1401,15 +1401,15 @@ function dibujaMapa(t){
     const enMarcha = e.act && !e.det;
     cuerpo.setAttribute('fill', e.det?'var(--warn)':(enMarcha?'var(--lane-r)':'var(--ink-3)'));
     pulso.setAttribute('fill-opacity', enMarcha ? (0.10+0.08*Math.sin(t*2.2)).toFixed(3) : '0');
-    sub.textContent = e.det ? 'detenido' : enMarcha ? e.act.c.rut+' · '+Z[e.act.c.z].n : (t>=840?'turno cerrado':'en espera');
+    sub.textContent = e.det ? 'stopped' : enMarcha ? e.act.c.rut+' · '+Z[e.act.c.z].n : (t>=840?'shift closed':'idle');
 
     const card=R.cards[i];
-    card.chip.textContent = e.det?'detenido' : enMarcha?'operando' : 'en espera';
+    card.chip.textContent = e.det?'stopped' : enMarcha?'operando' : 'idle';
     card.chip.style.color = e.det?'var(--warn)':enMarcha?'var(--ok)':'var(--ink-3)';
     card.stt.innerHTML = e.det
-      ? '<b>Obstáculo persistente</b> · tarima de evento en '+Z[e.act.c.z].n
-      : enMarcha ? '<b>'+Z[e.act.c.z].n+'</b> · pasada en curso'
-      : (e.hechas?'<b>'+e.hechas+' de '+e.total+' rutinas</b> cerradas':'Sin corrida iniciada');
+      ? '<b>Persistent obstacle</b> · event staging deck in'+Z[e.act.c.z].n
+      : enMarcha ? '<b>'+Z[e.act.c.z].n+'</b> · pass in progress'
+      : (e.hechas?'<b>'+e.hechas+' of'+e.total+' routines</b> closed':'No run started');
     const f=q=>card.kv.querySelector('[data-f="'+q+'"]');
     f('rut').textContent = (enMarcha||e.det) ? e.act.c.rut : ultima ? ultima.rut : '—';
     f('m2').textContent = F(Math.round(e.m2));
@@ -1418,7 +1418,7 @@ function dibujaMapa(t){
     const b=Math.max(0,Math.min(100,e.bat));
     card.bf.style.width=b.toFixed(0)+'%';
     card.bf.style.background = b<25?'var(--crit)':b<45?'var(--warn)':'var(--ok)';
-    card.bl.innerHTML='Batería <b>'+b.toFixed(0)+'%</b>';
+    card.bl.innerHTML='Battery <b>'+b.toFixed(0)+'%</b>';
   });
 
   /* tiles vivos */
@@ -1466,24 +1466,24 @@ function vivoOff(){
 
 /* ============================ vista: rutinas ============================ */
 function viewRutinas(){
-  const v=document.getElementById('v-rutinas'); v.textContent='';
+  const v=document.getElementById('v-routines'); v.textContent='';
   const head=el('div','vhead');
-  head.append(el('h2',null,'Rutinas de limpieza'),
-    el('p',null,'Cada zona tiene rutinas con frecuencia, duración, insumos y forma de verificar. Una rutina la ejecuta una persona, un robot o las dos cosas, y eso no cambia cómo se mide: se compara lo programado contra lo ejecutado, y se exige la misma evidencia.'));
+  head.append(el('h2',null,'Cleaning routines'),
+    el('p',null,'Every zone has routines with a frequency, a duration, supplies and a way to verify them. A routine is performed by a person, a robot or both, and that does not change how it is measured: scheduled is compared against executed, and the same evidence is required.'));
   v.append(head);
 
   const ejec=rutinas.filter(r=>r.real);
   v.append(tiles([
-    {k:'Rutinas del catálogo', v:String(rutinas.length), n:'5 por robot · 5 por persona · 1 mixta', src:'Catálogo de sitio'},
-    {k:'Programadas hoy', v:'10', n:'RUT-11 no entró al plan del día', src:'Programa del turno'},
-    {k:'Ejecutadas', v:String(ejec.length), n:'1 parcial · 1 no ejecutada · 1 en curso', src:'AsistIA + telemetría'},
-    {k:'Con evidencia', v:'8 / 9', n:'RUT-02 cerró sin foto de cierre', src:'Visión IA + fotos'}
+    {k:'Routines in the catalog', v:String(rutinas.length), n:'5 by robot · 5 by person · 1 mixed', src:'Site catalog'},
+    {k:'Scheduled today', v:'10', n:'RUT-11 never entered the day\'s plan', src:'Shift program'},
+    {k:'Executed', v:String(ejec.length), n:'1 partial · 1 not executed · 1 in progress', src:'AsistIA + telemetry'},
+    {k:'With evidence', v:'8 / 9', n:'RUT-02 closed with no closing photo', src:'AI vision + photos'}
   ]));
 
   /* programa del turno: plan vs. real */
   const g=el('div','gantt');
   const gh=el('div','g-head');
-  gh.append(el('div',null,'Rutina'), el('div',null,'06:00 — 14:00 · punteado: programado · lleno: ejecutado'), el('div',null,'Cumpl.'));
+  gh.append(el('div',null,'Routine'), el('div',null,'06:00 — 14:00 · dashed: scheduled · solid: executed'), el('div',null,'Compl.'));
   g.append(gh);
   const X=m=>((Math.max(360,Math.min(840,m))-360)/480*100);
   rutinas.forEach(r=>{
@@ -1494,36 +1494,36 @@ function viewRutinas(){
     if(r.plan){ const p=el('div','plan'); p.style.left=X(r.plan[0])+'%'; p.style.width=(X(r.plan[1])-X(r.plan[0]))+'%'; tr.append(p); }
     if(r.real){
       const d=el('div','real'); d.style.left=X(r.real[0])+'%'; d.style.width=Math.max(1.2,X(r.real[1])-X(r.real[0]))+'%';
-      d.style.background = r.ej==='robot' ? 'var(--lane-r)' : r.est==='parcial' ? 'var(--warn)' : 'var(--lane-h)';
+      d.style.background = r.ej==='robot' ? 'var(--lane-r)' : r.est==='partial' ? 'var(--warn)' : 'var(--lane-h)';
       tr.append(d);
     }
     if(!r.plan){ const p=el('div','plan'); p.style.left='0'; p.style.width='100%'; p.style.borderColor='var(--crit)'; tr.append(p); }
     else if(!r.real){ const p=el('div','plan'); p.style.left=X(r.plan[0])+'%'; p.style.width=(X(r.plan[1])-X(r.plan[0]))+'%'; p.style.borderColor='var(--crit)'; tr.append(p); }
-    const pc=el('div','pc', r.est==='fuera del plan' ? '—' : r.pc+'%');
-    if(r.pc<100&&r.est!=='fuera del plan') pc.style.color='var(--warn)';
+    const pc=el('div','pc', r.est==='outside the plan' ? '—' : r.pc+'%');
+    if(r.pc<100&&r.est!=='outside the plan') pc.style.color='var(--warn)';
     if(!r.real&&r.plan) pc.style.color='var(--crit)';
     bindTip(row, r.id+' · '+r.n,
-      (r.plan?'Programado '+hm(r.plan[0])+'–'+hm(r.plan[1]):'Sin programar hoy')+
-      (r.real?' · ejecutado '+hm(r.real[0])+'–'+hm(r.real[1]):' · no ejecutado')+
+      (r.plan?'Scheduled'+hm(r.plan[0])+'–'+hm(r.plan[1]):'Not scheduled today')+
+      (r.real?' · executed'+hm(r.real[0])+'–'+hm(r.real[1]):' · not executed')+
       ' · '+r.ej+' · '+r.z);
     row.append(nm,tr,pc); g.append(row);
   });
   const leg=el('div','legend');
-  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-h)"></i>Ejecutada por persona</span>'+
-    '<span><i class="swatch" style="background:var(--lane-r)"></i>Ejecutada por robot</span>'+
-    '<span><i class="swatch" style="background:var(--warn)"></i>Parcial</span>'+
-    '<span><i class="swatch" style="background:transparent;border:1.5px dashed var(--crit)"></i>Programada sin ejecutar</span>';
+  leg.innerHTML='<span><i class="swatch" style="background:var(--lane-h)"></i>Performed by a person</span>'+
+    '<span><i class="swatch" style="background:var(--lane-r)"></i>Performed by a robot</span>'+
+    '<span><i class="swatch" style="background:var(--warn)"></i>Partial</span>'+
+    '<span><i class="swatch" style="background:transparent;border:1.5px dashed var(--crit)"></i>Scheduled, never executed</span>';
   leg.style.marginTop='10px';
-  v.append(card('Programa del turno','Lo programado contra lo que de verdad pasó, en el mismo eje del turno.',g,leg));
+  v.append(card('Shift program','What was scheduled against what actually happened, on the same shift axis.',g,leg));
 
-  v.append(card('Catálogo de rutinas','La misma ficha para una rutina de persona y una de robot: eso es lo que permite compararlas.',
-    tabla([{t:'Clave'},{t:'Rutina'},{t:'Zona'},{t:'Ejecuta'},{t:'Frecuencia'},{t:'Dur.',n:1},{t:'m²',n:1},{t:'Verificación'}],
+  v.append(card('Routine catalog','The same record for a person routine and a robot routine: that is what makes them comparable.',
+    tabla([{t:'Key'},{t:'Routine'},{t:'Zone'},{t:'Performed by'},{t:'Frequency'},{t:'Dur.',n:1},{t:'m²',n:1},{t:'Verification'}],
       rutinas.map(r=>({
-        _alerta:r.est==='fuera del plan'||(!r.real&&r.plan),
+        _alerta:r.est==='outside the plan'||(!r.real&&r.plan),
         cells:[
           '<span class="code">'+r.id+'</span>', r.n, r.z,
           r.ej==='robot'?'<span class="chip" style="color:var(--lane-r);border-color:var(--lane-r)"><i class="dot"></i>robot</span>'
-            :r.ej==='persona'?'<span class="chip" style="color:var(--lane-h);border-color:var(--lane-h)"><i class="dot"></i>persona</span>'
+            :r.ej==='person'?'<span class="chip" style="color:var(--lane-h);border-color:var(--lane-h)"><i class="dot"></i>person</span>'
             :'<span class="chip"><i class="dot"></i>'+r.ej+'</span>',
           r.frec, r.dur+' min', r.m2?F(r.m2):'—', r.ver
         ]}))
@@ -1540,27 +1540,27 @@ function viewRutinas(){
       ps.append(d);
     });
     const meta=el('p','sub');
-    meta.innerHTML='<span class="code">'+r.ej+' · '+r.frec+' · '+r.dur+' min</span><br>Insumos: '+r.ins+'<br>Verificación: '+r.ver;
+    meta.innerHTML='<span class="code">'+r.ej+' · '+r.frec+' · '+r.dur+' min</span><br>Supplies:'+r.ins+'<br>Verification:'+r.ver;
     meta.style.marginBottom='10px';
     two.append(card(r.id+' · '+r.n, r.z, meta, ps));
   });
-  v.append(sec('Dos fichas completas', two));
+  v.append(sec('Two complete records', two));
 
   const n=el('div','note');
-  n.innerHTML='<b>La rutina es la unidad de medida.</b> Un tablero de equipos mide corridas; una operación se mide por rutinas, y la corrida del robot es solo una forma de ejecutar una de ellas. Al poner la rutina como unidad, el robot y la persona entran a la misma tabla con la misma frecuencia exigida y la misma evidencia — y ahí sí se puede decidir, zona por zona, qué conviene robotizar y qué no.';
+  n.innerHTML='<b>The routine is the unit of measure.</b> A fleet dashboard measures runs; an operation is measured in routines, and the robot run is just one way of performing one of them. With the routine as the unit, robot and person enter the same table with the same required frequency and the same evidence — and only then can you decide, zone by zone, what is worth robotizing and what is not.';
   v.append(n);
 }
 
 /* ============================ torre multi-sitio ============================ */
 const extra={
-  'Auditorio Nacional':         {turno:[360,840], asig:7,  faltas:1, z:['Explanada','Vestíbulo','Luneta','Pasillos','Sanit. N','Sanit. S','1er piso','Balcón','Estac. P1']},
-  'Torre Corporativa Reforma':  {turno:[360,780], asig:9,  faltas:0, z:['Lobby','Pisos 1-10','Pisos 11-20','Sanitarios','Comedor','Estac.']},
-  'Centro Comercial Sur':       {turno:[390,840], asig:22, faltas:1, z:['Pasillo A','Pasillo B','Food court','Sanitarios','Andenes','Estac. N','Estac. S']},
-  'Terminal Aérea T2':          {turno:[360,840], asig:18, faltas:2, z:['Sala A','Sala B','Documentación','Sanitarios','Última espera','Pasillos']},
-  'Corporativo Santa Fe':       {turno:[375,795], asig:6,  faltas:0, z:['Lobby','Oficinas','Sanitarios','Comedor']},
-  'Hospital Metropolitano':     {turno:[360,810], asig:14, faltas:0, z:['Urgencias','Consulta','Quirófanos','Sanitarios','Pasillos','Comedor']},
-  'Planta Industrial Querétaro':{turno:[390,840], asig:11, faltas:0, z:['Nave 1','Nave 2','Oficinas','Comedor','Patios']},
-  'CEDIS Tultitlán':            {turno:[360,825], asig:8,  faltas:1, z:['Andenes','Racks','Oficinas','Sanitarios','Patio']}
+  'Auditorio Nacional':         {turno:[360,840], asig:7,  faltas:1, z:['Esplanade','Lobby','Orchestra','Corridors','Restrooms N','Restrooms S','Mezzanine','Balcony','Parking P1']},
+  'Torre Corporativa Reforma':  {turno:[360,780], asig:9,  faltas:0, z:['Lobby','Floors 1-10','Floors 11-20','Restrooms','Cafeteria','Parking']},
+  'Centro Comercial Sur':       {turno:[390,840], asig:22, faltas:1, z:['Corridor A','Corridor B','Food court','Restrooms','Platforms','Parking N','Parking S']},
+  'Terminal Aérea T2':          {turno:[360,840], asig:18, faltas:2, z:['Hall A','Hall B','Check-in','Restrooms','Final lounge','Corridors']},
+  'Corporativo Santa Fe':       {turno:[375,795], asig:6,  faltas:0, z:['Lobby','Offices','Restrooms','Cafeteria']},
+  'Hospital Metropolitano':     {turno:[360,810], asig:14, faltas:0, z:['Emergency','Clinic','Operating rooms','Restrooms','Corridors','Cafeteria']},
+  'Planta Industrial Querétaro':{turno:[390,840], asig:11, faltas:0, z:['Bay 1','Bay 2','Offices','Cafeteria','Yards']},
+  'CEDIS Tultitlán':            {turno:[360,825], asig:8,  faltas:1, z:['Platforms','Racks','Offices','Restrooms','Yard']}
 };
 const ZFOCO=['explanada','vestibulo','luneta','pasilloEste','sanNorte','sanSur','primerPiso','balcon','estac'];
 function hsh(s){ let h=7; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))%9973; return h/9973; }
@@ -1602,15 +1602,15 @@ function sitioVivo(s,t){
 }
 
 function viewTorre(){
-  const v=document.getElementById('v-torre'); v.textContent='';
+  const v=document.getElementById('v-tower'); v.textContent='';
   const head=el('div','vhead');
-  head.append(el('h2',null,'Torre de control'),
-    el('p',null,'Los ocho sitios al mismo minuto. Cada tarjeta avanza con el reloj del grupo: la cobertura sube, el personal va entrando, los robots arrancan y cierran sus corridas, y las alertas aparecen cuando ocurren. Un clic en el Auditorio Nacional abre su mapa.'));
+  head.append(el('h2',null,'Control tower'),
+    el('p',null,'All eight sites on the same minute. Each card advances with the group clock: coverage climbs, staff clock in, robots start and close their runs, and notices appear as they happen. Click Auditorio Nacional to open its map.'));
   v.append(head);
-  v.append(barraTiempo('torre','hora del grupo'));
+  v.append(barraTiempo('torre','group time'));
 
   const lt=el('div','tiles'); T.tiles={};
-  [['cob','Cobertura del grupo'],['pres','Personal en sitio'],['act','Robots operando'],['m2','m² robotizados'],['al','Avisos del turno'],['ab','Sitios en turno']].forEach(([k,lab])=>{
+  [['cob','Group coverage'],['pres','Staff on site'],['act','Robots operating'],['m2','Robot-covered m²'],['al','Shift notices'],['ab','Sites on shift']].forEach(([k,lab])=>{
     const d=el('div','tile'); d.append(el('div','k',lab));
     const vv=el('div','v','—'); const nn=el('div','n','');
     d.append(vv,nn); lt.append(d); T.tiles[k]={v:vv,n:nn};
@@ -1619,33 +1619,33 @@ function viewTorre(){
 
   const grid=el('div','torre');
   T.cards=grupo.sitios.map(s=>{
-    const c=el('div','sc'+(s.foco?' foco':''));
+    const c=el('div','sc'+(s.foco?' focus':''));
     const hd=el('div','hd');
     const tit=el('div');
-    tit.innerHTML='<b>'+(s.foco?'<a href="#mapa" style="color:inherit;text-decoration:none">'+s.s+' ↗</a>':s.s)+'</b><em>'+s.l+' · '+s.g+'</em>';
+    tit.innerHTML='<b>'+(s.foco?'<a href="#map" style="color:inherit;text-decoration:none">'+s.s+' ↗</a>':s.s)+'</b><em>'+s.l+' · '+s.g+'</em>';
     const chip=el('span','chip'); chip.innerHTML='<i class="dot"></i>—';
     hd.append(tit,chip);
 
     const cr=el('div','cobrow');
     const big=el('span','big','—');
-    cr.append(big,el('span','mt','de cobertura del plan'));
+    cr.append(big,el('span','mt','of plan coverage'));
     const track=el('div','bar-track'), fill=el('div','bar-fill'); track.append(fill);
 
     const pills=el('div','pills');
     const pil=extra[s.s].z.map(()=>{ const i=el('i'); const b=el('b'); i.append(b); pills.append(i); return b; });
 
     const row=el('div','scrow');
-    row.innerHTML='<div><div class="k">Personal</div><div class="v" data-f="p">—</div></div>'+
+    row.innerHTML='<div><div class="k">Staff</div><div class="v" data-f="p">—</div></div>'+
                   '<div><div class="k">Robots</div><div class="v" data-f="r">—</div></div>'+
-                  '<div><div class="k">Avisos</div><div class="v" data-f="a">—</div></div>';
+                  '<div><div class="k">Notices</div><div class="v" data-f="a">—</div></div>';
     c.append(hd,cr,track,pills,row);
     grid.append(c);
     return {s,chip,big,fill,pil,row,c};
   });
-  v.append(sec('Sitios', grid));
+  v.append(sec('Sites', grid));
 
   const rk=el('div','rank'); T.rank=rk;
-  v.append(card('Orden por cobertura, al minuto','Se reordena conforme avanza el turno. La barra roja marca los sitios bajo la meta de 96%.',rk));
+  v.append(card('Ranked by coverage, by the minute','It reorders as the shift advances. The red bar marks sites below the 96% target.',rk));
 
   dibujos.push(dibujaTorre);
   sincPlay(); dibuja();
@@ -1671,23 +1671,23 @@ function dibujaTorre(t){
     });
     const f=q=>row.querySelector('[data-f="'+q+'"]');
     f('p').textContent=d.pres+' / '+d.asig;
-    f('r').textContent=d.nrob?d.act+' de '+d.nrob:'—';
+    f('r').textContent=d.nrob?d.act+' of'+d.nrob:'—';
     f('a').textContent=d.al||'0';
-    const est = !d.abierto ? ['','fuera de turno'] : d.al&&s.est==='critico' ? ['crit','crítico'] : d.al ? ['warn','atención'] : ['ok','en meta'];
+    const est = !d.abierto ? ['','off shift'] : d.al&&s.est==='critico' ? ['crit','critical'] : d.al ? ['warn','watch'] : ['ok','on target'];
     chip.className='chip '+est[0]; chip.innerHTML='<i class="dot"></i>'+est[1];
   });
   T.tiles.cob.v.textContent=(cobW/m2W).toFixed(1)+'%';
-  T.tiles.cob.n.textContent='promedio ponderado por m²';
+  T.tiles.cob.n.textContent='weighted average by m²';
   T.tiles.pres.v.textContent=pres;
-  T.tiles.pres.n.textContent='de '+asig+' asignados';
+  T.tiles.pres.n.textContent='of'+asig+' assigned';
   T.tiles.act.v.textContent=act;
-  T.tiles.act.n.textContent='de '+nrob+' equipos en sitio';
+  T.tiles.act.n.textContent='of'+nrob+' units on site';
   T.tiles.m2.v.textContent=F(Math.round(m2));
-  T.tiles.m2.n.textContent='acumulados en el grupo';
+  T.tiles.m2.n.textContent='group total so far';
   T.tiles.al.v.textContent=al;
-  T.tiles.al.n.textContent='desde el inicio del turno';
+  T.tiles.al.n.textContent='since the shift started';
   T.tiles.ab.v.textContent=ab+' / 8';
-  T.tiles.ab.n.textContent='sitios con turno abierto';
+  T.tiles.ab.n.textContent='sites with an open shift';
 
   datos.sort((a,b)=>b.d.cob-a.d.cob);
   T.rank.textContent='';
@@ -1706,54 +1706,54 @@ function dibujaTorre(t){
 /* ============================ control de corridas ============================ */
 const catRobot={
   'Auditorio Nacional':[
-    {id:'RUT-01',n:'Barrido de Luneta',z:'Luneta',dur:95,m2:5400},
-    {id:'RUT-02',n:'Barrido de Primer piso',z:'Primer piso',dur:90,m2:520},
-    {id:'RUT-04',n:'Fregado de Vestíbulo',z:'Vestíbulo principal',dur:95,m2:3200},
-    {id:'RUT-09',n:'Barrido de Balcón',z:'Balcón',dur:95,m2:620}],
+    {id:'RUT-01',n:'Sweep of the Orchestra',z:'Orchestra',dur:95,m2:5400},
+    {id:'RUT-02',n:'Sweep of the Mezzanine',z:'Mezzanine',dur:90,m2:520},
+    {id:'RUT-04',n:'Scrubbing of the Lobby',z:'Main Lobby',dur:95,m2:3200},
+    {id:'RUT-09',n:'Sweep of the Balcony',z:'Balcony',dur:95,m2:620}],
   'Torre Corporativa Reforma':[
-    {id:'RUT-21',n:'Fregado de Lobby',z:'Lobby',dur:70,m2:900},
-    {id:'RUT-22',n:'Barrido de pisos 1-10',z:'Pisos 1-10',dur:110,m2:2600}],
+    {id:'RUT-21',n:'Scrubbing of the Lobby',z:'Lobby',dur:70,m2:900},
+    {id:'RUT-22',n:'Sweep of floors 1-10',z:'Floors 1-10',dur:110,m2:2600}],
   'Centro Comercial Sur':[
-    {id:'RUT-31',n:'Barrido de Pasillo A',z:'Pasillo A',dur:100,m2:3100},
-    {id:'RUT-32',n:'Barrido de Pasillo B',z:'Pasillo B',dur:100,m2:2900},
-    {id:'RUT-33',n:'Fregado de Food court',z:'Food court',dur:95,m2:1800}],
+    {id:'RUT-31',n:'Sweep of Corridor A',z:'Corridor A',dur:100,m2:3100},
+    {id:'RUT-32',n:'Sweep of Corridor B',z:'Corridor B',dur:100,m2:2900},
+    {id:'RUT-33',n:'Scrubbing of the Food court',z:'Food court',dur:95,m2:1800}],
   'Terminal Aérea T2':[
-    {id:'RUT-41',n:'Fregado de Última espera',z:'Última espera',dur:100,m2:2100},
-    {id:'RUT-42',n:'Barrido de Documentación',z:'Documentación',dur:90,m2:1700}],
+    {id:'RUT-41',n:'Scrubbing of the Final lounge',z:'Final lounge',dur:100,m2:2100},
+    {id:'RUT-42',n:'Sweep of Check-in',z:'Check-in',dur:90,m2:1700}],
   'Corporativo Santa Fe':[
-    {id:'RUT-51',n:'Fregado de Lobby',z:'Lobby',dur:60,m2:700}]
+    {id:'RUT-51',n:'Scrubbing of the Lobby',z:'Lobby',dur:60,m2:700}]
 };
 const CONSUMO=0.42; /* % de batería por minuto de corrida */
 let cola=[
-  {id:'C-1041', sitio:'Auditorio Nacional', eq:'WHZ-0533', rut:'RUT-04', zona:'Vestíbulo principal', a:375, b:470, m2:3200, est:'ejecutada'},
-  {id:'C-1042', sitio:'Auditorio Nacional', eq:'WHZ-0412', rut:'RUT-01', zona:'Luneta',              a:390, b:485, m2:5400, est:'ejecutada'},
-  {id:'C-1043', sitio:'Terminal Aérea T2',  eq:'SCR-204',  rut:'RUT-42', zona:'Documentación',       a:400, b:490, m2:1700, est:'ejecutada'},
-  {id:'C-1044', sitio:'Auditorio Nacional', eq:'WHZ-0533', rut:'RUT-09', zona:'Balcón',              a:500, b:595, m2:620,  est:'ejecutada'},
-  {id:'C-1045', sitio:'Auditorio Nacional', eq:'WHZ-0412', rut:'RUT-02', zona:'Primer piso',         a:550, b:640, m2:520,  est:'parcial', motivo:'obstáculo persistente al 38%'},
-  {id:'C-1046', sitio:'Centro Comercial Sur',eq:'WHZ-0344',rut:'RUT-33', zona:'Food court',          a:600, b:695, m2:1800, est:'ejecutada'},
-  {id:'C-1047', sitio:'Auditorio Nacional', eq:'WHZ-0533', rut:'RUT-04', zona:'Vestíbulo principal', a:630, b:695, m2:3200, est:'ejecutada'},
-  {id:'C-1048', sitio:'Terminal Aérea T2',  eq:'SCR-204',  rut:'RUT-41', zona:'Última espera',       a:660, b:760, m2:2100, est:'en curso'},
-  {id:'C-1049', sitio:'Centro Comercial Sur',eq:'WHZ-0345',rut:'RUT-31', zona:'Pasillo A',           a:700, b:800, m2:3100, est:'programada'},
-  {id:'C-1050', sitio:'Auditorio Nacional', eq:'WHZ-0412', rut:'RUT-02', zona:'Primer piso',         a:740, b:830, m2:520,  est:'programada'},
-  {id:'C-1051', sitio:'Auditorio Nacional', eq:'SCR-118',  rut:'RUT-04', zona:'Vestíbulo principal', a:420, b:515, m2:3200, est:'cancelada', motivo:'equipo fuera de servicio'}
+  {id:'C-1041', sitio:'Auditorio Nacional', eq:'WHZ-0533', rut:'RUT-04', zona:'Main Lobby', a:375, b:470, m2:3200, est:'executed'},
+  {id:'C-1042', sitio:'Auditorio Nacional', eq:'WHZ-0412', rut:'RUT-01', zona:'Orchestra',              a:390, b:485, m2:5400, est:'executed'},
+  {id:'C-1043', sitio:'Terminal Aérea T2',  eq:'SCR-204',  rut:'RUT-42', zona:'Check-in',       a:400, b:490, m2:1700, est:'executed'},
+  {id:'C-1044', sitio:'Auditorio Nacional', eq:'WHZ-0533', rut:'RUT-09', zona:'Balcony',              a:500, b:595, m2:620,  est:'executed'},
+  {id:'C-1045', sitio:'Auditorio Nacional', eq:'WHZ-0412', rut:'RUT-02', zona:'Mezzanine',         a:550, b:640, m2:520,  est:'partial', motivo:'persistent obstacle at 38%'},
+  {id:'C-1046', sitio:'Centro Comercial Sur',eq:'WHZ-0344',rut:'RUT-33', zona:'Food court',          a:600, b:695, m2:1800, est:'executed'},
+  {id:'C-1047', sitio:'Auditorio Nacional', eq:'WHZ-0533', rut:'RUT-04', zona:'Main Lobby', a:630, b:695, m2:3200, est:'executed'},
+  {id:'C-1048', sitio:'Terminal Aérea T2',  eq:'SCR-204',  rut:'RUT-41', zona:'Final lounge',       a:660, b:760, m2:2100, est:'in progress'},
+  {id:'C-1049', sitio:'Centro Comercial Sur',eq:'WHZ-0345',rut:'RUT-31', zona:'Corridor A',           a:700, b:800, m2:3100, est:'scheduled'},
+  {id:'C-1050', sitio:'Auditorio Nacional', eq:'WHZ-0412', rut:'RUT-02', zona:'Mezzanine',         a:740, b:830, m2:520,  est:'scheduled'},
+  {id:'C-1051', sitio:'Auditorio Nacional', eq:'SCR-118',  rut:'RUT-04', zona:'Main Lobby', a:420, b:515, m2:3200, est:'cancelled', motivo:'unit out of service'}
 ];
 let folio=1052, confirmando=null;
 const politicas=[
-  {id:'pol-bat',   t:'No lanzar si la batería proyectada queda bajo 35%', d:'El equipo necesita reserva para volver a la base de carga.', on:true},
-  {id:'pol-solape',t:'Impedir dos corridas del mismo equipo a la misma hora', d:'Un equipo no puede estar en dos zonas al mismo tiempo.', on:true},
-  {id:'pol-turno', t:'Solo dentro del turno del sitio', d:'Fuera del turno no hay supervisor que atienda una interrupción.', on:true},
-  {id:'pol-dup',   t:'Avisar si la rutina ya está programada hoy en esa zona', d:'Evita duplicar superficie y confundir el conteo de m².', on:true},
-  {id:'pol-sup',   t:'Pedir visto bueno del supervisor en zonas con evento', d:'Zonas con público o montaje requieren confirmación en sitio.', on:true}
+  {id:'pol-bat',   t:'Do not launch if projected battery drops below 35%', d:'The unit needs reserve to make it back to the dock.', on:true},
+  {id:'pol-solape',t:'Block two runs of the same unit at the same time', d:'A unit cannot be in two zones at once.', on:true},
+  {id:'pol-turno', t:'Only within the site\'s shift', d:'Outside the shift there is no supervisor to handle an interruption.', on:true},
+  {id:'pol-dup',   t:'Warn if the routine is already scheduled today in that zone', d:'Avoids double-counting area and muddling the m² total.', on:true},
+  {id:'pol-sup',   t:'Require supervisor sign-off in event zones', d:'Zones with public access or staging need on-site confirmation.', on:true}
 ];
-const semana=[['lun',4],['mar',5],['mié',4],['jue',5],['vie',6],['sáb',3],['dom',2]];
+const semana=[['Mon',4],['Tue',5],['Wed',4],['Thu',5],['Fri',6],['Sat',3],['Sun',2]];
 
 function viewControl(){
   const v=document.getElementById('v-control'); v.textContent='';
   const head=el('div','vhead');
-  head.append(el('h2',null,'Control de corridas'),
-    el('p',null,'Desde aquí se programa y se lanza el trabajo de los equipos, con las mismas reglas para todos los sitios. Cada rutina del catálogo de robótica sabe su zona, su duración y su superficie, así que programar es elegir equipo y hora: lo demás se valida solo.'));
+  head.append(el('h2',null,'Run control'),
+    el('p',null,'This is where the units\' work is scheduled and launched, with the same rules across every site. Each routine in the robotics catalog already knows its zone, its duration and its area, so scheduling is picking a unit and a time: the rest validates itself.'));
   const nota=el('div','note');
-  nota.innerHTML='<b>Prototipo.</b> Lo que programes o canceles aquí se guarda en esta página para mostrar cómo funcionaría la pantalla. No se manda ninguna orden a un equipo real.';
+  nota.innerHTML='<b>Prototype.</b> What you schedule or cancel here is kept in this page to show how the screen would behave. No order is sent to any real unit.';
   v.append(head,nota);
 
   /* ---- formulario ---- */
@@ -1766,20 +1766,20 @@ function viewControl(){
     opts.forEach(o=>{ const op=el('option',null,o.t); op.value=o.v; if(o.dis) op.disabled=true; s.append(op); });
     d.append(l,s); return {d,s};
   };
-  const fs=mkSel('f-sitio','Sitio',sitios.map(x=>({v:x,t:x})));
-  const fe=mkSel('f-equipo','Equipo',[{v:'',t:'—'}]);
-  const fr=mkSel('f-rutina','Rutina',[{v:'',t:'—'}]);
+  const fs=mkSel('f-sitio','Site',sitios.map(x=>({v:x,t:x})));
+  const fe=mkSel('f-equipo','Unit',[{v:'',t:'—'}]);
+  const fr=mkSel('f-rutina','Routine',[{v:'',t:'—'}]);
   const fz=el('div','fld');
-  const lz=el('label',null,'Zona'); lz.htmlFor='f-zona';
+  const lz=el('label',null,'Zone'); lz.htmlFor='f-zona';
   const iz=el('input'); iz.id='f-zona'; iz.readOnly=true; iz.value='—';
   fz.append(lz,iz);
   const fh=el('div','fld');
-  const lh=el('label',null,'Inicio'); lh.htmlFor='f-hora';
+  const lh=el('label',null,'Start'); lh.htmlFor='f-hora';
   const ih=el('input'); Object.assign(ih,{type:'time',id:'f-hora',value:'12:30'});
   fh.append(lh,ih);
-  const frep=mkSel('f-rep','Repetición',[{v:'una',t:'Una vez'},{v:'diaria',t:'Diaria'},{v:'habiles',t:'Días hábiles'},{v:'evento',t:'Post-evento'}]);
+  const frep=mkSel('f-rep','Repeat',[{v:'una',t:'Once'},{v:'daily',t:'Daily'},{v:'habiles',t:'Weekdays'},{v:'evento',t:'Post-event'}]);
   const fb=el('div','fld');
-  const btn=el('button','btn','Programar corrida'); btn.type='button';
+  const btn=el('button','btn','Schedule run'); btn.type='button';
   fb.append(el('label',null,' '),btn);
   f.append(fs.d,fe.d,fr.d,fz,fh,frep.d,fb);
 
@@ -1793,7 +1793,7 @@ function viewControl(){
     const sitio=fs.s.value;
     fe.s.textContent='';
     equiposDe(sitio).forEach(r=>{
-      const op=el('option',null,r.id+' · '+r.mod+(r.est!=='operando'?' ('+(r.est==='fuera'?'fuera de servicio':'en mantenimiento')+')':''));
+      const op=el('option',null,r.id+' · '+r.mod+(r.est!=='operando'?' ('+(r.est==='fuera'?'out of service':'in maintenance')+')':''));
       op.value=r.id; if(r.est!=='operando') op.disabled=true;
       fe.s.append(op);
     });
@@ -1807,7 +1807,7 @@ function viewControl(){
     const eq=flota.robots.find(r=>r.id===fe.s.value);
     if(rut&&eq){
       const p=eq.bat-rut.dur*CONSUMO;
-      proy.innerHTML='Duración '+rut.dur+' min · '+F(rut.m2)+' m² de plan · batería al cierre estimada <b style="color:'+(p<35?'var(--crit)':'var(--ok)')+'">'+Math.max(0,Math.round(p))+'%</b> (desde '+eq.bat+'%)';
+      proy.innerHTML='Duration'+rut.dur+' min · '+F(rut.m2)+' m² of plan · estimated battery at close <b style="color:'+(p<35?'var(--crit)':'var(--ok)')+'">'+Math.max(0,Math.round(p))+'%</b> (from'+eq.bat+'%)';
     } else proy.textContent='';
   }
   fs.s.addEventListener('change',llena);
@@ -1819,35 +1819,35 @@ function viewControl(){
     const eq=flota.robots.find(r=>r.id===fe.s.value);
     const pol=k=>politicas.find(p=>p.id===k).on;
     msg.className='msg';
-    if(!rut||!eq){ msg.className='msg show err'; msg.textContent='Elige equipo y rutina.'; return; }
+    if(!rut||!eq){ msg.className='msg show err'; msg.textContent='Pick a unit and a routine.'; return; }
     const [H,M]=ih.value.split(':').map(Number);
     const a=H*60+M, b=a+rut.dur;
     const errs=[], avisos=[];
     const e=extra[sitio];
-    if(a<e.turno[0]||b>e.turno[1]) (pol('pol-turno')?errs:avisos).push('La corrida '+hm(a)+'–'+hm(b)+' queda fuera del turno del sitio ('+hm(e.turno[0])+'–'+hm(e.turno[1])+').');
-    const choque=cola.find(c=>c.eq===eq.id&&c.est!=='cancelada'&&a<c.b&&b>c.a);
-    if(choque) (pol('pol-solape')?errs:avisos).push(eq.id+' ya tiene la corrida '+choque.id+' de '+hm(choque.a)+' a '+hm(choque.b)+'.');
+    if(a<e.turno[0]||b>e.turno[1]) (pol('pol-turno')?errs:avisos).push('Run'+hm(a)+'–'+hm(b)+' falls outside the site\'s shift ('+hm(e.turno[0])+'–'+hm(e.turno[1])+').');
+    const choque=cola.find(c=>c.eq===eq.id&&c.est!=='cancelled'&&a<c.b&&b>c.a);
+    if(choque) (pol('pol-solape')?errs:avisos).push(eq.id+' already has run'+choque.id+' of'+hm(choque.a)+' at'+hm(choque.b)+'.');
     const p=eq.bat-rut.dur*CONSUMO;
-    if(p<35) (pol('pol-bat')?errs:avisos).push('La batería quedaría en '+Math.max(0,Math.round(p))+'%, abajo del mínimo de 35%.');
-    const dup=cola.find(c=>c.rut===rut.id&&c.zona===rut.z&&c.est!=='cancelada');
-    if(dup&&pol('pol-dup')) avisos.push(rut.id+' ya está en la cola de hoy para '+rut.z+' ('+dup.id+').');
-    if(pol('pol-sup')&&/Luneta|Explanada|Food court|Última espera/.test(rut.z)) avisos.push(rut.z+' es zona con público: la corrida queda sujeta al visto bueno del supervisor en sitio.');
+    if(p<35) (pol('pol-bat')?errs:avisos).push('Battery would end at'+Math.max(0,Math.round(p))+'%, below the 35% minimum.');
+    const dup=cola.find(c=>c.rut===rut.id&&c.zona===rut.z&&c.est!=='cancelled');
+    if(dup&&pol('pol-dup')) avisos.push(rut.id+' is already in today\'s queue for'+rut.z+' ('+dup.id+').');
+    if(pol('pol-sup')&&/Luneta|Explanada|Food court|Última espera/.test(rut.z)) avisos.push(rut.z+' is a zone with public access: the run is subject to on-site supervisor sign-off.');
 
-    if(errs.length){ msg.className='msg show err'; msg.innerHTML='<b>No se programó.</b><br>· '+errs.join('<br>· '); return; }
-    cola.push({id:'C-'+(folio++), sitio, eq:eq.id, rut:rut.id, zona:rut.z, a, b, m2:rut.m2, est:'programada', nueva:true});
+    if(errs.length){ msg.className='msg show err'; msg.innerHTML='<b>Not scheduled.</b><br>·'+errs.join('<br>· '); return; }
+    cola.push({id:'C-'+(folio++), sitio, eq:eq.id, rut:rut.id, zona:rut.z, a, b, m2:rut.m2, est:'scheduled', nueva:true});
     pintaCola();
     msg.className='msg show '+(avisos.length?'warn':'ok');
-    msg.innerHTML='<b>Programada '+cola[cola.length-1].id+'</b> · '+eq.id+' · '+rut.id+' · '+rut.z+' · '+hm(a)+'–'+hm(b)+
-      (frep.s.value!=='una'?' · repetición: '+frep.s.options[frep.s.selectedIndex].text.toLowerCase():'')+
+    msg.innerHTML='<b>Scheduled'+cola[cola.length-1].id+'</b> · '+eq.id+' · '+rut.id+' · '+rut.z+' · '+hm(a)+'–'+hm(b)+
+      (frep.s.value!=='una'?' · repeat:'+frep.s.options[frep.s.selectedIndex].text.toLowerCase():'')+
       (avisos.length?'<br>· '+avisos.join('<br>· '):'');
   });
 
-  v.append(card('Programar una corrida','La rutina define zona, duración y superficie. La batería al cierre se estima con el consumo de 0.42% por minuto.',f,proy,msg));
+  v.append(card('Schedule a run','The routine sets the zone, the duration and the area. Battery at close is estimated from a draw of 0.42% per minute.',f,proy,msg));
   llena();
 
   /* ---- cola ---- */
   const wrap=el('div'); C.cola=wrap;
-  v.append(card('Cola de hoy','Todas las corridas del día, de todos los sitios. Cada sitio usa las claves de su propio catálogo.',wrap));
+  v.append(card('Today\'s queue','Every run today, across all sites. Each site uses the keys from its own catalog.',wrap));
   pintaCola();
 
   /* ---- políticas ---- */
@@ -1859,11 +1859,11 @@ function viewControl(){
     const l=el('label',null,'<b>'+p.t+'</b><span>'+p.d+'</span>'); l.htmlFor=p.id;
     d.append(cb,l); pw.append(d);
   });
-  v.append(card('Reglas de lanzamiento','Se aplican al programar. Apagar una regla no la silencia: la baja de impedimento a aviso.',pw));
+  v.append(card('Launch rules','They apply when you schedule. Switching a rule off does not silence it: it drops from blocker to warning.',pw));
 
   /* ---- calendario ---- */
   const cal=el('div','cal'), tb=el('table');
-  const tr=el('tr'); tr.append(el('th',null,'Equipo'));
+  const tr=el('tr'); tr.append(el('th',null,'Unit'));
   semana.forEach(([d])=>tr.append(el('th',null,d)));
   tb.append(el('thead').appendChild(tr).parentNode);
   const body=el('tbody');
@@ -1873,7 +1873,7 @@ function viewControl(){
     semana.forEach(([d,base],di)=>{
       const td=el('td','c');
       const hoy = di===1;
-      const n = hoy ? cola.filter(c=>c.eq===r.id&&c.est!=='cancelada').length
+      const n = hoy ? cola.filter(c=>c.eq===r.id&&c.est!=='cancelled').length
                     : Math.max(0,Math.round(base*(0.4+hsh(r.id+d)*0.9)/2));
       const cel=el('span','cel'+(n?' on':''),String(n));
       if(n) cel.style.background='color-mix(in oklab, var(--brand) '+Math.min(100,30+n*16)+'%, var(--surface-2))';
@@ -1883,7 +1883,7 @@ function viewControl(){
     body.append(row);
   });
   tb.append(body); cal.append(tb);
-  v.append(card('Programación de la semana','Corridas por equipo y día. La columna de hoy (martes) se actualiza con lo que programes arriba.',cal));
+  v.append(card('Week schedule','Runs by unit and day. Today\'s column (Tuesday) updates with whatever you schedule above.',cal));
 }
 
 const C={};
@@ -1892,18 +1892,18 @@ function pintaCola(){
   C.cola.textContent='';
   const orden=[...cola].sort((a,b)=>a.a-b.a);
   const chipEst=c=>{
-    const m={ejecutada:['ok','ejecutada'],'en curso':['warn','en curso'],programada:['','programada'],parcial:['warn','parcial'],cancelada:['crit','cancelada']};
+    const m={ejecutada:['ok','executed'],'in progress':['warn','in progress'],programada:['','scheduled'],parcial:['warn','partial'],cancelada:['crit','cancelled']};
     const [k,l]=m[c.est]||['','—'];
     return '<span class="chip '+k+'"><i class="dot"></i>'+l+'</span>';
   };
   const w=el('div','scroll'), t=el('table');
   const th=el('tr');
-  [{t:'Folio'},{t:'Horario'},{t:'Sitio'},{t:'Equipo'},{t:'Rutina'},{t:'Zona'},{t:'m²',n:1},{t:'Estado'},{t:'Acciones'}]
+  [{t:'Ref'},{t:'Time'},{t:'Site'},{t:'Unit'},{t:'Routine'},{t:'Zone'},{t:'m²',n:1},{t:'Status'},{t:'Actions'}]
     .forEach(c=>th.append(el('th',c.n?'n':null,c.t)));
   t.append(el('thead').appendChild(th).parentNode);
   const tb=el('tbody');
   orden.forEach(c=>{
-    const tr=el('tr', c.est==='cancelada'?'alerta':null);
+    const tr=el('tr', c.est==='cancelled'?'alerta':null);
     if(c.nueva) tr.style.background='var(--brand-soft)';
     tr.append(el('td',null,'<span class="code">'+c.id+'</span>'));
     tr.append(el('td',null,'<span class="code">'+hm(c.a)+'–'+hm(c.b)+'</span>'));
@@ -1914,23 +1914,23 @@ function pintaCola(){
     tr.append(el('td','n',F(c.m2)));
     tr.append(el('td',null,chipEst(c)+(c.motivo?'<br><span style="font-size:11px;color:var(--ink-3)">'+c.motivo+'</span>':'')));
     const ac=el('td'), box=el('div','acts');
-    if(c.est==='programada'){
-      const l=el('button','btn mini','Lanzar ahora'); l.type='button';
+    if(c.est==='scheduled'){
+      const l=el('button','btn mini','Launch now'); l.type='button';
       l.addEventListener('click',()=>{
         const a=Math.round(sim.t), dur=c.b-c.a;
-        c.a=a; c.b=a+dur; c.est='en curso'; c.motivo='lanzada a mano a las '+hm(a); c.nueva=false;
+        c.a=a; c.b=a+dur; c.est='in progress'; c.motivo='launched by hand at'+hm(a); c.nueva=false;
         pintaCola();
       });
-      const x=el('button','btn mini danger', confirmando===c.id?'¿Cancelar?':'Cancelar'); x.type='button';
+      const x=el('button','btn mini danger', confirmando===c.id?'Cancel?':'Cancel'); x.type='button';
       x.addEventListener('click',()=>{
-        if(confirmando===c.id){ c.est='cancelada'; c.motivo='cancelada por operaciones'; confirmando=null; }
+        if(confirmando===c.id){ c.est='cancelled'; c.motivo='cancelled by operations'; confirmando=null; }
         else confirmando=c.id;
         pintaCola();
       });
       box.append(l,x);
-    } else if(c.est==='cancelada'){
-      const r=el('button','btn mini ghost','Reprogramar'); r.type='button';
-      r.addEventListener('click',()=>{ c.est='programada'; c.motivo=null; pintaCola(); });
+    } else if(c.est==='cancelled'){
+      const r=el('button','btn mini ghost','Reschedule'); r.type='button';
+      r.addEventListener('click',()=>{ c.est='scheduled'; c.motivo=null; pintaCola(); });
       box.append(r);
     } else box.append(el('span','code','—'));
     ac.append(box); tr.append(ac);
@@ -1939,21 +1939,21 @@ function pintaCola(){
   t.append(tb); w.append(t);
   const res=el('p','sub');
   const n=k=>cola.filter(c=>c.est===k).length;
-  res.textContent=cola.length+' corridas · '+n('ejecutada')+' ejecutadas · '+n('en curso')+' en curso · '+n('programada')+' programadas · '+n('parcial')+' parcial · '+n('cancelada')+' cancelada';
+  res.textContent=cola.length+' runs ·'+n('executed')+' executed ·'+n('in progress')+' in progress ·'+n('scheduled')+' scheduled ·'+n('partial')+' partial ·'+n('cancelled')+' cancelled';
   res.style.marginTop='10px';
   C.cola.append(w,res);
 }
 
 /* ============================ navegación ============================ */
 const VIEWS=[
-  {id:'panorama', t:'Panorama', r:viewPanorama},
-  {id:'torre', t:'Torre', r:viewTorre, on:vivoOn, off:vivoOff},
-  {id:'mapa', t:'Mapa vivo', r:viewMapa, on:vivoOn, off:vivoOff},
-  {id:'sitio', t:'Turno', r:viewSitio},
-  {id:'rutinas', t:'Rutinas', r:viewRutinas},
+  {id:'panorama', t:'Overview', r:viewPanorama},
+  {id:'tower', t:'Tower', r:viewTorre, on:vivoOn, off:vivoOff},
+  {id:'map', t:'Live map', r:viewMapa, on:vivoOn, off:vivoOff},
+  {id:'shift', t:'Shift', r:viewSitio},
+  {id:'routines', t:'Routines', r:viewRutinas},
   {id:'control', t:'Control', r:viewControl},
-  {id:'flota', t:'Flota', r:viewFlota},
-  {id:'supervision', t:'Supervisión', r:viewSupervision}
+  {id:'fleet', t:'Fleet', r:viewFlota},
+  {id:'supervision', t:'Inspections', r:viewSupervision}
 ];
 const nav=document.getElementById('nav');
 VIEWS.forEach(v=>{const a=el('a',null,v.t); a.href='#'+v.id; a.dataset.id=v.id; nav.append(a);});
@@ -1971,8 +1971,8 @@ function show(id){
     if(on) link.setAttribute('aria-current','page'); else link.removeAttribute('aria-current');
   });
   document.getElementById('turno-chip').textContent =
-    (id==='sitio'||id==='mapa'||id==='rutinas') ? 'Auditorio Nacional · mar 24 nov 2026 · 06:00–14:00'
-                 : 'mar 24 nov 2026 · turno 06:00–14:00';
+    (id==='shift'||id==='map'||id==='routines') ? 'Auditorio Nacional · Tue Nov 24, 2026 · 06:00–14:00'
+                 : 'Tue Nov 24, 2026 · shift 06:00–14:00';
 }
 addEventListener('hashchange',()=>{show(location.hash.replace('#','')); scrollTo({top:0,behavior:'instant'});});
 show(location.hash.replace('#',''));
