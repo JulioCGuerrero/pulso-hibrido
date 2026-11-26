@@ -792,7 +792,7 @@ function viewPanorama(){
     if(s.est==='critico') fill.style.background='var(--crit)';
     else if(s.est==='atencion') fill.style.background='var(--warn)';
     track.append(fill);
-    bindTip(row, s.s, s.cob+'% of plan · attendance'+s.asis+'% · score'+s.cal+' · '+F(s.m2)+' m²');
+    bindTip(row, s.s, s.cob+'% of plan · attendance '+s.asis+'% · score '+s.cal+' · '+F(s.m2)+' m²');
     row.append(lab, track, el('div','val',s.cob.toFixed(1)+'%'));
     bars.append(row);
   });
@@ -811,7 +811,7 @@ function viewPanorama(){
     stack.append(a);
     if(l.r){const b=el('i'); b.style.width=(l.r/tot*100)+'%'; b.style.background='var(--lane-r)'; stack.append(b);}
     const holder=el('div'); holder.style.minWidth='0'; holder.append(stack);
-    bindTip(row, l.l, 'Staff'+F(l.h)+' m² · robot'+F(l.r)+' m² · total '+F(tot)+' m²');
+    bindTip(row, l.l, 'Staff '+F(l.h)+' m² · robot '+F(l.r)+' m² · total '+F(tot)+' m²');
     row.append(holder, el('div','val',F(tot)));
     st.append(row);
   });
@@ -1145,7 +1145,7 @@ function viewMapa(){
     g.append(pcv);
     gZona.append(g);
     R.zonas[k]={tint,borde,bh,br,pcv,bw};
-    bindTip(g, z.n, z.plan ? F(z.plan)+' m² of plan ·'+F(z.m2)+' m² of floor area' : F(z.m2)+' m² · '+z.fuera);
+    bindTip(g, z.n, z.plan ? F(z.plan)+' m² of plan · '+F(z.m2)+' m² of floor area' : F(z.m2)+' m² · '+z.fuera);
   }
 
   /* rutas y estelas de cada corrida */
@@ -1171,7 +1171,7 @@ function viewMapa(){
     const sub=mk('text',{x:'11',y:'6.5',fill:'var(--ink-3)','font-family':'var(--mono)','font-size':'8.5','dominant-baseline':'middle'});
     sub.textContent=p.rut; g.append(sub);
     gPers.append(g);
-    bindTip(g,p.n,p.rut+' · '+Z[p.z].n+' · status'+p.mov+(p.nota?' · '+p.nota:''));
+    bindTip(g,p.n,p.rut+' · '+Z[p.z].n+' · status '+p.mov+(p.nota?' · '+p.nota:''));
     return {p,g,t,sub,pulso};
   });
   /* supervisor */
@@ -1365,7 +1365,7 @@ function dibujaMapa(t){
     const c=R.pcards[i];
     const min=Math.max(0,Math.min(t,p.b)-p.a);
     c.row.className='prow'+(activo?'':' pend');
-    c.mn.textContent = t<p.a ? 'not clocked in' : activo ? Math.round(min)+' min' : 'out'+hm(p.b);
+    c.mn.textContent = t<p.a ? 'not clocked in' : activo ? Math.round(min)+' min' : 'out '+hm(p.b);
     if(activo&&p.nota&&t-p.a<90) c.mn.textContent=p.nota;
   });
   const pc=document.getElementById('pcount');
@@ -1407,9 +1407,9 @@ function dibujaMapa(t){
     card.chip.textContent = e.det?'stopped' : enMarcha?'operando' : 'idle';
     card.chip.style.color = e.det?'var(--warn)':enMarcha?'var(--ok)':'var(--ink-3)';
     card.stt.innerHTML = e.det
-      ? '<b>Persistent obstacle</b> · event staging deck in'+Z[e.act.c.z].n
+      ? '<b>Persistent obstacle</b> · event staging deck in '+Z[e.act.c.z].n
       : enMarcha ? '<b>'+Z[e.act.c.z].n+'</b> · pass in progress'
-      : (e.hechas?'<b>'+e.hechas+' of'+e.total+' routines</b> closed':'No run started');
+      : (e.hechas?'<b>'+e.hechas+' of '+e.total+' routines</b> closed':'No run started');
     const f=q=>card.kv.querySelector('[data-f="'+q+'"]');
     f('rut').textContent = (enMarcha||e.det) ? e.act.c.rut : ultima ? ultima.rut : '—';
     f('m2').textContent = F(Math.round(e.m2));
@@ -1503,8 +1503,8 @@ function viewRutinas(){
     if(r.pc<100&&r.est!=='outside the plan') pc.style.color='var(--warn)';
     if(!r.real&&r.plan) pc.style.color='var(--crit)';
     bindTip(row, r.id+' · '+r.n,
-      (r.plan?'Scheduled'+hm(r.plan[0])+'–'+hm(r.plan[1]):'Not scheduled today')+
-      (r.real?' · executed'+hm(r.real[0])+'–'+hm(r.real[1]):' · not executed')+
+      (r.plan?'Scheduled '+hm(r.plan[0])+'–'+hm(r.plan[1]):'Not scheduled today')+
+      (r.real?' · executed '+hm(r.real[0])+'–'+hm(r.real[1]):' · not executed')+
       ' · '+r.ej+' · '+r.z);
     row.append(nm,tr,pc); g.append(row);
   });
@@ -1540,7 +1540,7 @@ function viewRutinas(){
       ps.append(d);
     });
     const meta=el('p','sub');
-    meta.innerHTML='<span class="code">'+r.ej+' · '+r.frec+' · '+r.dur+' min</span><br>Supplies:'+r.ins+'<br>Verification:'+r.ver;
+    meta.innerHTML='<span class="code">'+r.ej+' · '+r.frec+' · '+r.dur+' min</span><br>Supplies: '+r.ins+'<br>Verification: '+r.ver;
     meta.style.marginBottom='10px';
     two.append(card(r.id+' · '+r.n, r.z, meta, ps));
   });
@@ -1671,7 +1671,7 @@ function dibujaTorre(t){
     });
     const f=q=>row.querySelector('[data-f="'+q+'"]');
     f('p').textContent=d.pres+' / '+d.asig;
-    f('r').textContent=d.nrob?d.act+' of'+d.nrob:'—';
+    f('r').textContent=d.nrob?d.act+' of '+d.nrob:'—';
     f('a').textContent=d.al||'0';
     const est = !d.abierto ? ['','off shift'] : d.al&&s.est==='critico' ? ['crit','critical'] : d.al ? ['warn','watch'] : ['ok','on target'];
     chip.className='chip '+est[0]; chip.innerHTML='<i class="dot"></i>'+est[1];
@@ -1679,9 +1679,9 @@ function dibujaTorre(t){
   T.tiles.cob.v.textContent=(cobW/m2W).toFixed(1)+'%';
   T.tiles.cob.n.textContent='weighted average by m²';
   T.tiles.pres.v.textContent=pres;
-  T.tiles.pres.n.textContent='of'+asig+' assigned';
+  T.tiles.pres.n.textContent='of '+asig+' assigned';
   T.tiles.act.v.textContent=act;
-  T.tiles.act.n.textContent='of'+nrob+' units on site';
+  T.tiles.act.n.textContent='of '+nrob+' units on site';
   T.tiles.m2.v.textContent=F(Math.round(m2));
   T.tiles.m2.n.textContent='group total so far';
   T.tiles.al.v.textContent=al;
@@ -1807,7 +1807,7 @@ function viewControl(){
     const eq=flota.robots.find(r=>r.id===fe.s.value);
     if(rut&&eq){
       const p=eq.bat-rut.dur*CONSUMO;
-      proy.innerHTML='Duration'+rut.dur+' min · '+F(rut.m2)+' m² of plan · estimated battery at close <b style="color:'+(p<35?'var(--crit)':'var(--ok)')+'">'+Math.max(0,Math.round(p))+'%</b> (from'+eq.bat+'%)';
+      proy.innerHTML='Duration '+rut.dur+' min · '+F(rut.m2)+' m² of plan · estimated battery at close <b style="color:'+(p<35?'var(--crit)':'var(--ok)')+'">'+Math.max(0,Math.round(p))+'%</b> (from '+eq.bat+'%)';
     } else proy.textContent='';
   }
   fs.s.addEventListener('change',llena);
@@ -1824,21 +1824,21 @@ function viewControl(){
     const a=H*60+M, b=a+rut.dur;
     const errs=[], avisos=[];
     const e=extra[sitio];
-    if(a<e.turno[0]||b>e.turno[1]) (pol('pol-turno')?errs:avisos).push('Run'+hm(a)+'–'+hm(b)+' falls outside the site\'s shift ('+hm(e.turno[0])+'–'+hm(e.turno[1])+').');
+    if(a<e.turno[0]||b>e.turno[1]) (pol('pol-turno')?errs:avisos).push('Run '+hm(a)+'–'+hm(b)+' falls outside the site\'s shift ('+hm(e.turno[0])+'–'+hm(e.turno[1])+').');
     const choque=cola.find(c=>c.eq===eq.id&&c.est!=='cancelled'&&a<c.b&&b>c.a);
-    if(choque) (pol('pol-solape')?errs:avisos).push(eq.id+' already has run'+choque.id+' of'+hm(choque.a)+' at'+hm(choque.b)+'.');
+    if(choque) (pol('pol-solape')?errs:avisos).push(eq.id+' already has run '+choque.id+' of '+hm(choque.a)+' at '+hm(choque.b)+'.');
     const p=eq.bat-rut.dur*CONSUMO;
-    if(p<35) (pol('pol-bat')?errs:avisos).push('Battery would end at'+Math.max(0,Math.round(p))+'%, below the 35% minimum.');
+    if(p<35) (pol('pol-bat')?errs:avisos).push('Battery would end at '+Math.max(0,Math.round(p))+'%, below the 35% minimum.');
     const dup=cola.find(c=>c.rut===rut.id&&c.zona===rut.z&&c.est!=='cancelled');
-    if(dup&&pol('pol-dup')) avisos.push(rut.id+' is already in today\'s queue for'+rut.z+' ('+dup.id+').');
+    if(dup&&pol('pol-dup')) avisos.push(rut.id+' is already in today\'s queue for '+rut.z+' ('+dup.id+').');
     if(pol('pol-sup')&&/Luneta|Explanada|Food court|Última espera/.test(rut.z)) avisos.push(rut.z+' is a zone with public access: the run is subject to on-site supervisor sign-off.');
 
-    if(errs.length){ msg.className='msg show err'; msg.innerHTML='<b>Not scheduled.</b><br>·'+errs.join('<br>· '); return; }
+    if(errs.length){ msg.className='msg show err'; msg.innerHTML='<b>Not scheduled.</b><br>· '+errs.join('<br>· '); return; }
     cola.push({id:'C-'+(folio++), sitio, eq:eq.id, rut:rut.id, zona:rut.z, a, b, m2:rut.m2, est:'scheduled', nueva:true});
     pintaCola();
     msg.className='msg show '+(avisos.length?'warn':'ok');
-    msg.innerHTML='<b>Scheduled'+cola[cola.length-1].id+'</b> · '+eq.id+' · '+rut.id+' · '+rut.z+' · '+hm(a)+'–'+hm(b)+
-      (frep.s.value!=='una'?' · repeat:'+frep.s.options[frep.s.selectedIndex].text.toLowerCase():'')+
+    msg.innerHTML='<b>Scheduled '+cola[cola.length-1].id+'</b> · '+eq.id+' · '+rut.id+' · '+rut.z+' · '+hm(a)+'–'+hm(b)+
+      (frep.s.value!=='una'?' · repeat: '+frep.s.options[frep.s.selectedIndex].text.toLowerCase():'')+
       (avisos.length?'<br>· '+avisos.join('<br>· '):'');
   });
 
@@ -1918,7 +1918,7 @@ function pintaCola(){
       const l=el('button','btn mini','Launch now'); l.type='button';
       l.addEventListener('click',()=>{
         const a=Math.round(sim.t), dur=c.b-c.a;
-        c.a=a; c.b=a+dur; c.est='in progress'; c.motivo='launched by hand at'+hm(a); c.nueva=false;
+        c.a=a; c.b=a+dur; c.est='in progress'; c.motivo='launched by hand at '+hm(a); c.nueva=false;
         pintaCola();
       });
       const x=el('button','btn mini danger', confirmando===c.id?'Cancel?':'Cancel'); x.type='button';
@@ -1939,7 +1939,7 @@ function pintaCola(){
   t.append(tb); w.append(t);
   const res=el('p','sub');
   const n=k=>cola.filter(c=>c.est===k).length;
-  res.textContent=cola.length+' runs ·'+n('executed')+' executed ·'+n('in progress')+' in progress ·'+n('scheduled')+' scheduled ·'+n('partial')+' partial ·'+n('cancelled')+' cancelled';
+  res.textContent=cola.length+' runs · '+n('executed')+' executed · '+n('in progress')+' in progress · '+n('scheduled')+' scheduled · '+n('partial')+' partial · '+n('cancelled')+' cancelled';
   res.style.marginTop='10px';
   C.cola.append(w,res);
 }
